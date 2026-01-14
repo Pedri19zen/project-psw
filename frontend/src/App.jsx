@@ -4,6 +4,8 @@ import AdminLayout from './components/AdminLayout';
 import ServiceList from './components/services/ServiceList';
 import ServiceForm from './components/services/ServiceForm';
 import WorkshopSettings from './components/workshop/WorkshopSettings';
+import StaffList from './components/staff/StaffList';
+import StaffForm from './components/staff/StaffForm';
 
 function App() {
   // Mock user state
@@ -31,7 +33,8 @@ function App() {
           <Route path="services" element={<ServiceList />} />
           
           {/* Placeholders for future pages */}
-          <Route path="staff" element={<h2>Manage Staff</h2>} />
+          <Route path="staff/new" element={<StaffForm />} />
+          <Route path="staff" element={<StaffList />} />
           <Route path="settings" element={<WorkshopSettings />} />
           
         </Route>
