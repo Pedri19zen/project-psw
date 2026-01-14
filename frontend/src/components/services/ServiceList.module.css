@@ -1,0 +1,107 @@
+.container {
+  background: var(--bg-white);
+  padding: 2rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.addButton {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.addButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 1rem;
+  background-color: var(--bg-main);
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.badge {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editBtn, .deleteBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.editBtn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--secondary-color);
+}
+
+.editBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.deleteBtn {
+  background: transparent;
+  color: var(--danger-color);
+}
+
+.deleteBtn:hover {
+  background-color: #fef2f2;
+}
+
+.loading, .error, .emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: var(--secondary-color);
+}
+
+.error {
+  color: var(--danger-color);
+}
