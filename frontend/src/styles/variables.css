@@ -1,0 +1,40 @@
+:root {
+  --primary-color: #2563eb;       
+  --primary-hover: #1d4ed8;      
+  --secondary-color: #64748b;     
+  
+  --bg-main: #f3f4f6;            
+  --bg-white: #ffffff;            /* White background for cards */
+  --bg-sidebar: #1e293b;          /* Dark sidebar */
+  
+  --text-main: #111827;           
+  --text-light: #9ca3af;          
+  --text-white: #ffffff;         
+  
+  --border-color: #e5e7eb;        
+  --danger-color: #ef4444;        /* Red for delete buttons */
+  --success-color: #22c55e;       /* Green for success messages */
+
+  /* Spacing & Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --radius-md: 8px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+/* Reset default browser styles */
+* {
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}

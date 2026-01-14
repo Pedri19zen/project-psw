@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment Variables (Protect your passwords)
+.env
+
+# Build outputs
+dist/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
