@@ -4,10 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 const Navbar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('userRole');
+  // Removi a linha do userRole que causava o erro por não ser usada
 
   const handleLogout = () => {
-    localStorage.clear(); // Limpa token e role
+    localStorage.clear(); 
     navigate('/login');
   };
 
@@ -22,7 +22,8 @@ const Navbar = () => {
       color: 'white'
     }}>
       <div style={{ fontWeight: 'bold', fontSize: '1.2rem', letterSpacing: '1px' }}>
-         REPRO<span style={{ fontWeight: '300' }}>AUTO</span>
+        <span style={{ fontWeight: '600' }}>REPRO</span>
+        <span style={{ fontWeight: '300' }}>AUTO</span>
       </div>
 
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
@@ -46,7 +47,8 @@ const Navbar = () => {
                 padding: '8px 15px',
                 borderRadius: '8px',
                 fontWeight: 'bold',
-                marginLeft: '10px'
+                marginLeft: '10px',
+                cursor: 'pointer'
               }}
             >
               Sair

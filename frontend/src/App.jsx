@@ -1,75 +1,74 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-// Importação de Componentes (Member 3 - Design System)
-import Navbar from './components/Navbar';
+// Componentes de Layout
+import Navbar from "./components/Navbar";
+import AdminLayout from "./components/AdminLayout";
 
-// Importação de Páginas
-import Auth from './pages/Auth';
-import MyVehicles from './pages/MyVehicles';
-import NewBooking from './pages/NewBooking';
-import ClientDashboard from './pages/ClientDashboard';
+// Componentes de Administração (Pastas de componentes)
+import ServiceList from './components/services/ServiceList';
+import ServiceForm from './components/services/ServiceForm';
+import StaffList from './components/staff/StaffList';
+import StaffForm from './components/staff/StaffForm';
+import WorkshopSettings from './components/workshop/WorkshopSettings';
 
-// --- LÓGICA DE SEGURANÇA (Membro 3: Security & Auth) ---
-/**
- * ProtectedRoute verifica se existe um token no localStorage.
- * Se não existir, redireciona o utilizador para o Login.
- */
-const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
+// Páginas de Cliente e Auth
+import Auth from "./pages/Auth";
+import MyVehicles from "./pages/MyVehicles";
+import NewBooking from "./pages/NewBooking";
+import ClientDashboard from "./pages/ClientDashboard";
+
+// --- LÓGICA DE PROTEÇÃO DE ROTA ---
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
   return (
     <Router>
-      {/* A Navbar é injetada aqui para estar presente em todas as páginas */}
-      <Navbar />
+      <Routes>
+        {/* 1. LOGIN */}
+        <Route path="/login" element={<Auth />} />
 
-      {/* Container principal com classe de animação definida no variables.css */}
-      <div className="fade-in" style={{ minHeight: 'calc(100vh - 70px)' }}>
-        <Routes>
-          {/* Rota Pública: Autenticação */}
-          <Route path="/login" element={<Auth />} />
+        {/* 2. ADMINISTRAÇÃO */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <AdminLayout user={{ 
+                name: localStorage.getItem("userName") || "Admin", 
+                role: localStorage.getItem("userRole") 
+              }} />
+            </PrivateRoute>
+          }
+        >
+          {/* Redirecionamento de /admin para /admin/dashboard */}
+          <Route index element={<Navigate to="dashboard" replace />} />
+          
+          <Route path="dashboard" element={<h2>Dashboard Overview</h2>} />
+          
+          {/* --- ESTA É A ROTA QUE ABRE admin/services --- */}
+          <Route path="services" element={<ServiceList />} />
+          
+          {/* Rota para criar novo serviço */}
+          <Route path="services/new" element={<ServiceForm />} />
+          
+          {/* Outras rotas administrativas */}
+          <Route path="staff" element={<StaffList />} />
+          <Route path="staff/new" element={<StaffForm />} />
+          <Route path="settings" element={<WorkshopSettings />} />
+        </Route>
 
-          {/* Rotas Protegidas: Apenas Clientes Autenticados podem aceder */}
-          <Route 
-            path="/veiculos" 
-            element={
-              <ProtectedRoute>
-                <MyVehicles />
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/agendar" 
-            element={
-              <ProtectedRoute>
-                <NewBooking />
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <ClientDashboard />
-              </ProtectedRoute>
-            } 
-          />
+        {/* 3. ROTAS DE CLIENTE */}
+        <Route path="/dashboard" element={<PrivateRoute><Navbar /><ClientDashboard /></PrivateRoute>} />
+        <Route path="/veiculos" element={<PrivateRoute><Navbar /><MyVehicles /></PrivateRoute>} />
+        <Route path="/agendar" element={<PrivateRoute><Navbar /><NewBooking /></PrivateRoute>} />
 
-          {/* Redirecionamento Padrão: Se a rota não existir ou for a raiz, vai para login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          
-          {/* Catch-all: Qualquer outra rota volta para o Dashboard ou Login */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </div>
+        {/* 4. SEGURANÇA */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
     </Router>
   );
 }
