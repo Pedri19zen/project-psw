@@ -7,12 +7,12 @@ const AdminLayout = ({ user }) => {
       {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.logo}>
-          <h2>Oficina<span>Manager</span></h2>
+          <h2>REPRO<span>AUTO</span></h2>
         </div>
         
         <nav className={styles.nav}>
           <Link to="/admin/dashboard" className={styles.link}>Dashboard</Link>
-          <Link to="/admin/services" className={styles.link}>Services</Link>
+          <Link to="/admin/services" className={styles.link}>Serviços</Link>
           <Link to="/admin/staff" className={styles.link}>Staff</Link>
           <Link to="/admin/settings" className={styles.link}>Config Settings</Link>
         </nav>

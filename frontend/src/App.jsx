@@ -1,45 +1,75 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
-import AdminLayout from './components/AdminLayout';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// Componentes de Layout
+import Navbar from "./components/Navbar";
+import AdminLayout from "./components/AdminLayout";
+
+// Componentes de Administração (Pastas de componentes)
 import ServiceList from './components/services/ServiceList';
 import ServiceForm from './components/services/ServiceForm';
-import WorkshopSettings from './components/workshop/WorkshopSettings';
 import StaffList from './components/staff/StaffList';
 import StaffForm from './components/staff/StaffForm';
+import WorkshopSettings from './components/workshop/WorkshopSettings';
+
+// Páginas de Cliente e Auth
+import Auth from "./pages/Auth";
+import MyVehicles from "./pages/MyVehicles";
+import NewBooking from "./pages/NewBooking";
+import ClientDashboard from "./pages/ClientDashboard";
+
+// --- LÓGICA DE PROTEÇÃO DE ROTA ---
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/login" replace />;
+};
 
 function App() {
-  // Mock user state
-  const [user, setUser] = useState({ 
-    name: 'Admin User', 
-    role: 'admin_oficina', 
-    isAuthenticated: true 
-  });
-
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        {/* 1. Redirect root URL (localhost:5173) to the dashboard */}
-        <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+        {/* 1. LOGIN */}
+        <Route path="/login" element={<Auth />} />
 
-        {/* 2. The Admin Section */}
-        <Route path="/admin" element={<AdminLayout user={user} />}>
-        <Route path="services/new" element={<ServiceForm />} />
-        <Route path="services" element={<ServiceList />} />
+        {/* 2. ADMINISTRAÇÃO */}
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <AdminLayout user={{ 
+                name: localStorage.getItem("userName") || "Admin", 
+                role: localStorage.getItem("userRole") 
+              }} />
+            </PrivateRoute>
+          }
+        >
+          {/* Redirecionamento de /admin para /admin/dashboard */}
+          <Route index element={<Navigate to="dashboard" replace />} />
           
-          {/* This matches /admin/dashboard */}
           <Route path="dashboard" element={<h2>Dashboard Overview</h2>} />
           
-          {/* This matches /admin/services */}
+          {/* --- ESTA É A ROTA QUE ABRE admin/services --- */}
           <Route path="services" element={<ServiceList />} />
           
-          {/* Placeholders for future pages */}
-          <Route path="staff/new" element={<StaffForm />} />
-          <Route path="staff" element={<StaffList />} />
-          <Route path="settings" element={<WorkshopSettings />} />
+          {/* Rota para criar novo serviço */}
+          <Route path="services/new" element={<ServiceForm />} />
           
+          {/* Outras rotas administrativas */}
+          <Route path="staff" element={<StaffList />} />
+          <Route path="staff/new" element={<StaffForm />} />
+          <Route path="settings" element={<WorkshopSettings />} />
         </Route>
+
+        {/* 3. ROTAS DE CLIENTE */}
+        <Route path="/dashboard" element={<PrivateRoute><Navbar /><ClientDashboard /></PrivateRoute>} />
+        <Route path="/veiculos" element={<PrivateRoute><Navbar /><MyVehicles /></PrivateRoute>} />
+        <Route path="/agendar" element={<PrivateRoute><Navbar /><NewBooking /></PrivateRoute>} />
+
+        {/* 4. SEGURANÇA */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
