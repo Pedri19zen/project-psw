@@ -1,40 +1,38 @@
 :root {
-  --primary-color: #2563eb;       
-  --primary-hover: #1d4ed8;      
-  --secondary-color: #64748b;     
-  
-  --bg-main: #f3f4f6;            
-  --bg-white: #ffffff;            /* White background for cards */
-  --bg-sidebar: #1e293b;          /* Dark sidebar */
-  
-  --text-main: #111827;           
-  --text-light: #9ca3af;          
-  --text-white: #ffffff;         
-  
-  --border-color: #e5e7eb;        
-  --danger-color: #ef4444;        /* Red for delete buttons */
-  --success-color: #22c55e;       /* Green for success messages */
-
-  /* Spacing & Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --radius-md: 8px;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --secondary: #64748b;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --background: #f1f5f9;
+  --card-bg: #ffffff;
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --radius: 16px;
 }
 
 body {
-  margin: 0;
+  background-color: var(--background);
+  color: var(--text-dark);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-main);
+  margin: 0;
 }
 
-/* Reset default browser styles */
-* {
-  box-sizing: border-box;
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
 }
 
-button {
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+button:active { transform: scale(0.98); }
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
