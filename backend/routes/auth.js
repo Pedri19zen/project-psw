@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 
 const client = new OAuth2Client("250749350765-8nnv7dfbr3bv1o891hqqhnnhomfo6i2j.apps.googleusercontent.com");
-const JWT_SECRET = "segredo_jwt"; // Mantém o mesmo segredo para todas as rotas
+// Use the .env file, but fall back to the hardcoded one if .env is missing
+const JWT_SECRET = process.env.JWT_SECRET || "segredo_jwt";
 
 // --- LOGIN NORMAL (Admin, Staff e Cliente) ---
 router.post('/login', async (req, res) => {
