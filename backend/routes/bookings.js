@@ -1,29 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
 const bookingController = require('../controllers/bookingController');
+// verifyToken handles the JWT, isAdmin checks the 'admin' role in req.user
+const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 
-// @route   POST api/bookings
-// @desc    Criar nova marcação real (Lógica no Controller)
-// @access  Private
-router.post('/', auth, bookingController.createBooking);
+// User Actions
+router.post('/', verifyToken, bookingController.createBooking);
+router.get('/my-history', verifyToken, bookingController.getClientHistory);
 
-// @route   GET api/bookings/available-slots
-// @desc    Simular horários disponíveis (Mock)
-// @access  Private
-router.get('/available-slots', auth, (req, res) => {
-  const slots = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"];
-  res.json(slots);
-});
+// Public/Shared Actions
+router.get('/available-slots', bookingController.getAvailableSlots);
 
-// @route   GET api/bookings/my-bookings
-// @desc    Listar marcações do usuário logado
-// @access  Private
-router.get('/my-bookings', auth, bookingController.getMyBookings);
+// Admin & Staff Only: Get every booking in the system
+router.get('/admin/all', verifyToken, isAdmin, bookingController.getAllBookings);
 
-// @route   PUT api/bookings/cancel/:id
-// @desc    Cancelar uma marcação específica
-// @access  Private
-router.put('/cancel/:id', auth, bookingController.cancelBooking);
+router.patch('/:id/status', verifyToken, isAdmin, bookingController.updateBookingStatus);
 
 module.exports = router;

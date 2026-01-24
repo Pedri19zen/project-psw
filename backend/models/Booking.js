@@ -33,6 +33,16 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     enum: ['Pendente', 'Confirmado', 'Em Progresso', 'Concluído', 'Cancelado'],
     default: 'Pendente'
+  },
+  mechanic: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+
+  status: {
+    type: String,
+    enum: ['Pendente', 'Confirmado', 'Em Progresso', 'Concluído', 'Cancelado'],
+    default: 'Pendente'
   }
 }, {
   timestamps: true

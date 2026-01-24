@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import api from '../../services/api'; // Correct API import
 import styles from './StaffList.module.css';
-import { useNavigate } from 'react-router-dom'; // 1. NEW: Import the hook
 
 const StaffList = () => {
-  const navigate = useNavigate(); // 2. NEW: Initialize the hook
+  const navigate = useNavigate(); 
 
   const [mechanics, setMechanics] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,8 @@ const StaffList = () => {
   useEffect(() => {
     const fetchStaff = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/staff/mechanics');
+        // Uses the configured API (Base URL + Auth Token)
+        const response = await api.get('/staff/mechanics');
         setMechanics(response.data);
         setLoading(false);
       } catch (err) {
@@ -23,16 +24,16 @@ const StaffList = () => {
     fetchStaff();
   }, []);
 
-  if (loading) return <div className={styles.loading}>Loading team...</div>;
+  if (loading) return <div className="fade-in" style={{padding: '2rem'}}>Loading team...</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>Team Management</h2>
         
-        {/* 3. NEW: Updated the button to navigate to the form */}
+        {/* FIX: Uses global 'btn-primary' class for blue button */}
         <button 
-          className={styles.addButton} 
+          className="btn-primary" 
           onClick={() => navigate('/admin/staff/new')}
         >
           + Register New Mechanic

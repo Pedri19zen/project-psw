@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Service = require('../models/Service');
 const Workshop = require('../models/Workshop');
+const { verifyToken, isAdmin } = require('../middleware/authMiddleware'); // <--- IMPORT
 
-// List all services
+// List all services (PUBLIC - Clients need to see this)
 router.get('/', async (req, res) => {
   try {
-    // Populate mechanics so we see names in the UI, not just IDs
     const services = await Service.find().populate('authorizedMechanics', 'name email');
     res.json(services);
   } catch (error) {
@@ -14,13 +14,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Create new service
-router.post('/', async (req, res) => {
+// Create new service (ADMIN ONLY)
+router.post('/', verifyToken, isAdmin, async (req, res) => {
   try {
     const newService = new Service(req.body);
     const savedService = await newService.save();
 
-    // Link service to the workshop
     if (req.body.workshop) {
       await Workshop.findByIdAndUpdate(req.body.workshop, {
         $push: { services: savedService._id }
@@ -33,8 +32,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update service
-router.put('/:id', async (req, res) => {
+// Update service (ADMIN ONLY)
+router.put('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const updated = await Service.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
@@ -43,8 +42,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete service
-router.delete('/:id', async (req, res) => {
+// Delete service (ADMIN ONLY)
+router.delete('/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     await Service.findByIdAndDelete(req.params.id);
     res.json({ message: 'Deleted' });

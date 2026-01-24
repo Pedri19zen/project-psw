@@ -1,69 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const Workshop = require('../models/Workshop');
 const workshopController = require('../controllers/workshopController');
+const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 
-// --- ROTAS PÚBLICAS (WorkshopController) ---
+// ==========================================
+// IMPORTANT: ROUTE ORDER MATTERS!
+// Specific routes (like /config) MUST come BEFORE dynamic routes (like /:id)
+// ==========================================
 
-// @route   GET api/workshops
-// @desc    Listar todas as oficinas
-// @access  Public
+// --- ADMIN ROUTES (Protected) ---
+
+// 1. Create New (POST /) - Fixes the "Failed to save" error
+router.post('/', verifyToken, isAdmin, workshopController.createWorkshop);
+
+// 2. Get Config (GET /config) - Must be before /:id
+router.get('/config', verifyToken, isAdmin, workshopController.getWorkshopConfig);
+
+// 3. Update Info (PUT /:id)
+router.put('/:id', verifyToken, isAdmin, workshopController.updateWorkshop);
+
+// 4. Update Shifts (PUT /:id/shifts)
+router.put('/:id/shifts', verifyToken, isAdmin, workshopController.updateShifts);
+
+
+// --- PUBLIC ROUTES (Open) ---
+
+// 5. List all (GET /)
 router.get('/', workshopController.getPublicWorkshops);
 
-// @route   GET api/workshops/:id
-// @desc    Ver detalhes e serviços da oficina
-// @access  Public
+// 6. View Details (GET /:id) - Catches everything else with an ID
 router.get('/:id', workshopController.getWorkshopDetails);
-
-
-// --- ROTAS DE CONFIGURAÇÃO E ADMINISTRAÇÃO ---
-
-// Get the workshop configuration
-// We grab the first workshop found since we are operating in single-workshop mode for now
-router.get('/config', async (req, res) => {
-  try {
-    const workshop = await Workshop.findOne();
-    if (!workshop) return res.status(404).json({ message: 'No workshop found' });
-    res.json(workshop);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching config', error });
-  }
-});
-
-// Update workshop details
-router.put('/:id', async (req, res) => {
-  try {
-    const { name, location, contact } = req.body;
-    const updatedWorkshop = await Workshop.findByIdAndUpdate(
-      req.params.id,
-      { name, location, contact },
-      { new: true }
-    );
-    res.json(updatedWorkshop);
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating workshop', error });
-  }
-});
-
-// Update Shifts (Turnos)
-// Critical for managing availability
-router.put('/:id/shifts', async (req, res) => {
-  try {
-    const { shifts } = req.body;
-    
-    if (!shifts || !Array.isArray(shifts)) {
-      return res.status(400).json({ message: 'Invalid shifts format' });
-    }
-
-    const updatedWorkshop = await Workshop.findByIdAndUpdate(
-      req.params.id,
-      { shifts },
-      { new: true }
-    );
-    res.json(updatedWorkshop);
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating shifts', error });
-  }
-});
 
 module.exports = router;

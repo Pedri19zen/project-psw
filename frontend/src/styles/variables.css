@@ -10,7 +10,7 @@
   --text-dark: #1e293b;
   --text-light: #64748b;
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --radius: 16px;
+  --radius: 12px; /* Reduced slightly for buttons */
 }
 
 body {
@@ -20,6 +20,61 @@ body {
   margin: 0;
 }
 
+/* --- GLOBAL BUTTON FIX  --- */
+button, 
+.btn-primary,
+a[href*="/new"], 
+a[href*="create"] {
+  background-color: var(--primary); 
+  color: white !important;          
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  /* Flexbox centers text/icons */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none; /* Removes underline from links */
+  line-height: 1;
+}
+
+/* Hover State */
+button:hover, 
+.btn-primary:hover,
+a[href*="/new"]:hover,
+a[href*="create"]:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+/* Active/Click State */
+button:active,
+.btn-primary:active { 
+  transform: scale(0.98) translateY(0); 
+}
+
+/* Red Button (Logout/Delete) Exception */
+button.logout, 
+button.delete,
+button[class*="danger"] {
+  background-color: var(--danger);
+}
+
+button.logout:hover, 
+button.delete:hover,
+button[class*="danger"]:hover {
+  background-color: #dc2626; 
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* --- ANIMATIONS & INPUTS --- */
 .fade-in {
   animation: fadeIn 0.5s ease-out;
 }
@@ -29,9 +84,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-button:active { transform: scale(0.98); }
-
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--primary) !important;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);

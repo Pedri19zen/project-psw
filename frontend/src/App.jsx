@@ -1,82 +1,116 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-// Componentes de Layout
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from './context/AuthContext';
+import AdminDashboard from './components/dashboard/AdminDashboard';
 import Navbar from "./components/Navbar";
 import AdminLayout from "./components/AdminLayout";
-
-// Componentes de Administração
 import ServiceList from './components/services/ServiceList';
 import ServiceForm from './components/services/ServiceForm';
 import StaffList from './components/staff/StaffList';
 import StaffForm from './components/staff/StaffForm';
 import WorkshopSettings from './components/workshop/WorkshopSettings';
-
-// Páginas de Cliente e Auth
 import Auth from "./pages/Auth";
 import MyVehicles from "./pages/MyVehicles";
 import NewBooking from "./pages/NewBooking"; 
 import ClientDashboard from "./pages/ClientDashboard";
-import MyBookings from "./pages/MyBookings"; // <-- Certifique-se de que este import existe
-
-// --- NOVOS IMPORTS: Páginas de Oficinas ---
+import MyBookings from "./pages/MyBookings";
 import WorkshopsList from "./pages/WorkshopsList";
 import WorkshopDetails from "./pages/WorkshopDetails";
 
-// --- LÓGICA DE PROTEÇÃO DE ROTA ---
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" replace />;
+// --- COMPONENTE DE PROTEÇÃO INTELIGENTE ---
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) return <div>Loading...</div>; 
+
+  // 1. Not logged in? Go to Login
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // 2. Logged in but wrong role?
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
 };
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* 1. LOGIN */}
-        <Route path="/login" element={<Auth />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          
+          {/* --- ROTA PÚBLICA: LOGIN --- */}
+          <Route path="/login" element={<Auth />} />
 
-        {/* 2. ADMINISTRAÇÃO */}
-        <Route
-          path="/admin"
-          element={
-            <PrivateRoute>
-              <AdminLayout user={{ 
-                name: localStorage.getItem("userName") || "Admin", 
-                role: localStorage.getItem("userRole") 
-              }} />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<h2>Dashboard Overview</h2>} />
-          <Route path="services" element={<ServiceList />} />
-          <Route path="services/new" element={<ServiceForm />} />
-          <Route path="staff" element={<StaffList />} />
-          <Route path="staff/new" element={<StaffForm />} />
-          <Route path="settings" element={<WorkshopSettings />} />
-        </Route>
+          {/* --- ÁREA DE ADMINISTRAÇÃO & STAFF (Secure) --- */}
+          <Route
+            path="/admin"
+            element={
+              // --- FIX: ADDED 'mechanic' TO ALLOWED ROLES ---
+              <ProtectedRoute allowedRoles={['admin', 'staff', 'mechanic']}>
+                <AdminLayout /> 
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            
+            <Route path="services" element={<ServiceList />} />
+            <Route path="services/new" element={<ServiceForm />} />
+            
+            {/* Edit Route */}
+            <Route path="services/:id" element={<ServiceForm />} /> 
+            
+            <Route path="staff" element={<StaffList />} />
+            <Route path="staff/new" element={<StaffForm />} />
+            <Route path="settings" element={<WorkshopSettings />} />
+          </Route>
 
-        {/* 3. ROTAS DE CLIENTE */}
-        <Route path="/dashboard" element={<PrivateRoute><Navbar /><ClientDashboard /></PrivateRoute>} />
-        <Route path="/veiculos" element={<PrivateRoute><Navbar /><MyVehicles /></PrivateRoute>} />
-        <Route path="/agendar" element={<PrivateRoute><Navbar /><NewBooking /></PrivateRoute>} />
-        
-        {/* Nova rota adicionada aqui */}
-        <Route path="/my-bookings" element={<PrivateRoute><Navbar /><MyBookings /></PrivateRoute>} />
-        
-        {/* Rota adicional /book apontando para o agendamento */}
-        <Route path="/book" element={<PrivateRoute><Navbar /><NewBooking /></PrivateRoute>} />
-        
-        {/* --- NOVAS ROTAS DE OFICINAS --- */}
-        <Route path="/workshops" element={<PrivateRoute><Navbar /><WorkshopsList /></PrivateRoute>} />
-        <Route path="/workshops/:id" element={<PrivateRoute><Navbar /><WorkshopDetails /></PrivateRoute>} />
+          {/* --- ROTA DE REDIRECIONAMENTO STAFF --- */}
+          <Route path="/staff" element={<Navigate to="/admin/dashboard" replace />} />
 
-        {/* 4. SEGURANÇA */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+          {/* --- ÁREA DO CLIENTE (Secure) --- */}
+          
+          <Route path="/dashboard" element={
+            <ProtectedRoute> <Navbar /><ClientDashboard /> </ProtectedRoute>
+          } />
+          
+          <Route path="/veiculos" element={
+            <ProtectedRoute> <Navbar /><MyVehicles /> </ProtectedRoute>
+          } />
+          
+          <Route path="/agendar" element={
+            <ProtectedRoute> <Navbar /><NewBooking /> </ProtectedRoute>
+          } />
+          
+          <Route path="/my-bookings" element={
+            <ProtectedRoute> <Navbar /><MyBookings /> </ProtectedRoute>
+          } />
+          
+          <Route path="/book" element={
+            <ProtectedRoute> <Navbar /><NewBooking /> </ProtectedRoute>
+          } />
+
+          {/* --- ROTAS DE OFICINAS --- */}
+          <Route path="/workshops" element={
+            <ProtectedRoute> <Navbar /><WorkshopsList /> </ProtectedRoute>
+          } />
+          
+          <Route path="/workshops/:id" element={
+            <ProtectedRoute> <Navbar /><WorkshopDetails /> </ProtectedRoute>
+          } />
+
+          {/* --- CATCH ALL --- */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+          
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

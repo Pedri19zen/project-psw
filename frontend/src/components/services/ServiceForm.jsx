@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import api from '../../services/api'; // Correct API import
 import styles from './ServiceForm.module.css';
 
 const ServiceForm = () => {
   const navigate = useNavigate();
-  
+  const { id } = useParams(); // Get ID from URL to check if we are editing
+  const isEditMode = !!id;
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -14,16 +16,17 @@ const ServiceForm = () => {
     duration: 30,
     descriptionPublic: '',
     descriptionPrivate: '',
-    authorizedMechanics: [] // Stores IDs of selected mechanics
+    authorizedMechanics: [] 
   });
 
   const [mechanics, setMechanics] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch mechanics for the checklist
+  // 1. Fetch Mechanics (Always needed)
   useEffect(() => {
     const fetchMechanics = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/staff/mechanics');
+        const response = await api.get('/staff/mechanics');
         setMechanics(response.data);
       } catch (err) {
         console.error('Error fetching mechanics:', err);
@@ -31,6 +34,29 @@ const ServiceForm = () => {
     };
     fetchMechanics();
   }, []);
+
+  // 2. Fetch Service Data (Only if Editing)
+  useEffect(() => {
+    if (isEditMode) {
+      const fetchService = async () => {
+        try {
+          const res = await api.get(`/services/${id}`);
+          setFormData({
+            name: res.data.name,
+            type: res.data.type,
+            price: res.data.price,
+            duration: res.data.duration,
+            descriptionPublic: res.data.descriptionPublic || '',
+            descriptionPrivate: res.data.descriptionPrivate || '',
+            authorizedMechanics: res.data.authorizedMechanics?.map(m => m._id) || []
+          });
+        } catch (err) {
+          console.error("Error loading service:", err);
+        }
+      };
+      fetchService();
+    }
+  }, [id, isEditMode]);
 
   // Handle Text Inputs
   const handleChange = (e) => {
@@ -41,13 +67,11 @@ const ServiceForm = () => {
   const handleMechanicToggle = (mechanicId) => {
     const currentIds = formData.authorizedMechanics;
     if (currentIds.includes(mechanicId)) {
-      // Remove if already selected
       setFormData({ 
         ...formData, 
         authorizedMechanics: currentIds.filter(id => id !== mechanicId) 
       });
     } else {
-      // Add if not selected
       setFormData({ 
         ...formData, 
         authorizedMechanics: [...currentIds, mechanicId] 
@@ -57,18 +81,25 @@ const ServiceForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/services', formData);
-      navigate('/admin/services'); // Go back to list after success
+      if (isEditMode) {
+        await api.put(`/services/${id}`, formData);
+      } else {
+        await api.post('/services', formData);
+      }
+      navigate('/admin/services'); 
     } catch (err) {
-      alert('Error creating service. Check console.');
+      alert('Error saving service.');
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className={styles.container}>
-      <h2>Add New Service</h2>
+      <h2>{isEditMode ? 'Edit Service' : 'Add New Service'}</h2>
       
       <form onSubmit={handleSubmit} className={styles.form}>
         {/* Row 1: Basic Info */}
@@ -77,6 +108,7 @@ const ServiceForm = () => {
           <input 
             type="text" 
             name="name" 
+            value={formData.name}
             required 
             onChange={handleChange} 
             placeholder="e.g. Oil Change"
@@ -86,7 +118,7 @@ const ServiceForm = () => {
         <div className={styles.row}>
           <div className={styles.formGroup}>
             <label>Type</label>
-            <select name="type" onChange={handleChange}>
+            <select name="type" value={formData.type} onChange={handleChange}>
               <option value="Maintenance">Maintenance</option>
               <option value="Repair">Repair</option>
               <option value="Inspection">Inspection</option>
@@ -98,6 +130,7 @@ const ServiceForm = () => {
             <input 
               type="number" 
               name="price" 
+              value={formData.price}
               required 
               onChange={handleChange} 
             />
@@ -108,7 +141,7 @@ const ServiceForm = () => {
             <input 
               type="number" 
               name="duration" 
-              defaultValue={30} 
+              value={formData.duration}
               onChange={handleChange} 
             />
           </div>
@@ -119,6 +152,7 @@ const ServiceForm = () => {
           <label>Public Description (Client View)</label>
           <textarea 
             name="descriptionPublic" 
+            value={formData.descriptionPublic}
             rows="3" 
             onChange={handleChange}
           ></textarea>
@@ -128,6 +162,7 @@ const ServiceForm = () => {
           <label>Private Notes (Staff Only)</label>
           <textarea 
             name="descriptionPrivate" 
+            value={formData.descriptionPrivate}
             rows="2" 
             onChange={handleChange}
           ></textarea>
@@ -141,6 +176,7 @@ const ServiceForm = () => {
               <label key={mech._id} className={styles.checkboxLabel}>
                 <input 
                   type="checkbox" 
+                  checked={formData.authorizedMechanics.includes(mech._id)}
                   onChange={() => handleMechanicToggle(mech._id)}
                 />
                 {mech.name}
@@ -151,11 +187,17 @@ const ServiceForm = () => {
         </div>
 
         <div className={styles.actions}>
-          <button type="button" onClick={() => navigate('/admin/services')} className={styles.cancelBtn}>
+          <button 
+            type="button" 
+            onClick={() => navigate('/admin/services')} 
+            style={{ background: '#64748b', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+          >
             Cancel
           </button>
-          <button type="submit" className={styles.submitBtn}>
-            Create Service
+          
+          {/* FIXED: Uses btn-primary class */}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Saving...' : (isEditMode ? 'Update Service' : 'Create Service')}
           </button>
         </div>
       </form>

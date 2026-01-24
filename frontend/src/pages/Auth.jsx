@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
-import api from '../services/api';
+import api from '../services/api'; 
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import { useAuth } from '../context/AuthContext'; 
 import logoImg from '../assets/logo-repro-removebg-preview.png';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'Cliente' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'client' });
+  
   const navigate = useNavigate();
+  const { login } = useAuth(); 
 
-  // Lógica de Redirecionamento Centralizada
   const handleRedirect = (role) => {
-    // Normalizamos para minúsculas para evitar erros de escrita do Backend
-    const userRole = role ? role.toLowerCase() : 'cliente';
+    // 1. Force lowercase to avoid case-sensitivity issues
+    const userRole = role ? role.toLowerCase() : 'client';
+    
+    // DEBUG: Check this in your browser console (F12)
+    console.log("👉 DEBUG: Attempting redirect for role:", userRole);
 
-    if (userRole === 'admin') {
+    // 2. The Check
+    if (['admin', 'staff', 'mechanic'].includes(userRole)) {
+      console.log("✅ Recognized as Team Member -> Sending to Admin Dashboard");
       navigate('/admin/dashboard');
-    } else if (userRole === 'staff') {
-      navigate('/staff');
     } else {
+      console.log("ℹ️ Recognized as Client -> Sending to Client Dashboard");
       navigate('/dashboard');
     }
   };
@@ -29,16 +35,18 @@ const Auth = () => {
       const endpoint = isLogin ? '/auth/login' : '/auth/register';
       const res = await api.post(endpoint, formData);
       
-      // 1. Guardar dados (Vital para a ProtectedRoute do App.jsx ler)
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('userRole', res.data.role);
-      localStorage.setItem('userName', res.data.name);
+      console.log("Login Success. Server sent:", res.data);
 
-      // 2. Redirecionar
+      login({
+        token: res.data.token,
+        role: res.data.role,
+        name: res.data.name
+      });
+
       handleRedirect(res.data.role);
 
     } catch (error) {
-      console.error("Erro:", error);
+      console.error("Auth Error:", error);
       const errorMsg = error.response?.data?.msg || "Erro na autenticação.";
       alert(errorMsg);
     }
@@ -48,14 +56,15 @@ const Auth = () => {
     try {
       const res = await api.post('/auth/google', { token: credentialResponse.credential });
       
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('userRole', res.data.role);
-      localStorage.setItem('userName', res.data.name);
+      login({
+        token: res.data.token,
+        role: res.data.role,
+        name: res.data.name
+      });
 
       handleRedirect(res.data.role);
-
     } catch (error) {
-      console.error("Detalhes do erro Google:", error); 
+      console.error("Google Auth Error:", error); 
       alert("Erro ao entrar com Google.");
     }
   };
@@ -68,10 +77,7 @@ const Auth = () => {
         <h2 style={{ color: '#2563eb', marginBottom: '5px' }}>
           {isLogin ? 'Iniciar Sessão' : 'Criar Conta'}
         </h2>
-        <p style={{ color: '#64748b', marginBottom: '25px', fontSize: '14px' }}>
-          {isLogin ? 'Bem-vindo de volta!' : 'Junte-se à nossa rede de oficinas.'}
-        </p>
-
+        
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {!isLogin && (
             <input 
@@ -84,14 +90,12 @@ const Auth = () => {
           <input 
             type="email" 
             placeholder="Email" 
-            autoComplete="email"
             onChange={e => setFormData({...formData, email: e.target.value})} 
             required style={inputStyle} 
           />
           <input 
             type="password" 
             placeholder="Password" 
-            autoComplete="current-password"
             onChange={e => setFormData({...formData, password: e.target.value})} 
             required style={inputStyle} 
           />
@@ -124,7 +128,7 @@ const Auth = () => {
   );
 };
 
-// --- ESTILOS ---
+// Styles
 const containerStyle = { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '20px', background: '#f8fafc' };
 const cardStyle = { maxWidth: '420px', width: '100%', background: 'white', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', textAlign: 'center' };
 const inputStyle = { padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '16px' };

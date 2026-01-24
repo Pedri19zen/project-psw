@@ -1,71 +1,73 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import styles from './StaffForm.module.css';
+import api from '../../services/api';
 
 const StaffForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '123' // Default password for simplicity
+    password: ''
   });
   const [error, setError] = useState('');
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/staff', formData);
+      await api.post('/staff', formData);
       navigate('/admin/staff');
     } catch (err) {
-      setError(err.response?.data?.message || 'Error creating staff');
+      console.error(err);
+      setError('Failed to register staff member.');
     }
   };
 
   return (
-    <div className={styles.container}>
-      <h2>Register New Mechanic</h2>
+    <div className="card fade-in" style={{ maxWidth: '500px', margin: '2rem auto', padding: '2rem' }}>
+      <h2 style={{color: '#1e293b'}}>Register New Mechanic</h2>
       
-      {error && <div className={styles.error}>{error}</div>}
+      {error && <div style={{color: 'red', marginBottom: '1rem'}}>{error}</div>}
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <div className={styles.formGroup}>
-          <label>Full Name</label>
+      <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+        <div>
+          <label style={{display: 'block', marginBottom: '0.5rem'}}>Full Name</label>
           <input 
-            type="text" name="name" required 
-            onChange={handleChange} placeholder="e.g. Carlos Silva"
+            type="text" 
+            className="form-control"
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            required
+            style={{width: '100%', padding: '0.8rem'}}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label>Email Address</label>
+        <div>
+          <label style={{display: 'block', marginBottom: '0.5rem'}}>Email</label>
           <input 
-            type="email" name="email" required 
-            onChange={handleChange} placeholder="mechanic@oficina.pt"
+            type="email" 
+            className="form-control"
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            required
+            style={{width: '100%', padding: '0.8rem'}}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label>Default Password</label>
+        <div>
+          <label style={{display: 'block', marginBottom: '0.5rem'}}>Password</label>
           <input 
-            type="text" name="password" 
-            value={formData.password} onChange={handleChange}
+            type="password" 
+            className="form-control"
+            value={formData.password}
+            onChange={(e) => setFormData({...formData, password: e.target.value})}
+            required
+            style={{width: '100%', padding: '0.8rem'}}
           />
-          <small className={styles.hint}>They can change this later.</small>
         </div>
 
-        <div className={styles.actions}>
-          <button type="button" onClick={() => navigate('/admin/staff')} className={styles.cancelBtn}>
-            Cancel
-          </button>
-          <button type="submit" className={styles.submitBtn}>
-            Register Staff
-          </button>
-        </div>
+        <button type="submit" className="btn-primary" style={{marginTop: '1rem'}}>
+          Register Mechanic
+        </button>
       </form>
     </div>
   );

@@ -8,14 +8,12 @@ const ClientDashboard = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        // 1. Verificar se o token existe antes de chamar
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        // 2. Chamar a API (certifica-te que o interceptor do axios está a enviar o token)
         const res = await api.get('/bookings/my-history');
         
-        // 3. Garantir que res.data é um array antes de guardar
+        // Ensure res.data is an array
         setBookings(Array.isArray(res.data) ? res.data : []);
       } catch (error) {
         console.error("Erro ao carregar histórico:", error);
@@ -28,10 +26,13 @@ const ClientDashboard = () => {
   }, []);
 
   const getStatusBadge = (status) => {
+    // Matches your Portuguese Model Enums
     const styles = {
-      'Concluída': { bg: '#d1fae5', text: '#065f46' },
-      'Em curso': { bg: '#dbeafe', text: '#1e40af' },
-      'Pendente': { bg: '#fef3c7', text: '#92400e' }
+      'Concluído': { bg: '#d1fae5', text: '#065f46' },
+      'Em Progresso': { bg: '#dbeafe', text: '#1e40af' },
+      'Pendente': { bg: '#fef3c7', text: '#92400e' },
+      'Confirmado': { bg: '#dcfce7', text: '#15803d' },
+      'Cancelado': { bg: '#fee2e2', text: '#b91c1c' }
     };
     const current = styles[status] || { bg: '#f1f5f9', text: '#475569' };
     return (
@@ -66,11 +67,19 @@ const ClientDashboard = () => {
             {bookings.length > 0 ? (
               bookings.map(b => (
                 <tr key={b._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '15px' }}>{new Date(b.date).toLocaleDateString()}</td>
                   <td style={{ padding: '15px' }}>
-                    <strong>{b.serviceId?.name || b.serviceId?.tipo || 'Serviço'}</strong>
-                    <br/>
-                    <small style={{ color: '#64748b' }}>{b.vehicleId?.brand} {b.vehicleId?.model}</small>
+                    {/* Format the date correctly */}
+                    {new Date(b.date).toLocaleDateString('pt-PT')} às {b.time}
+                  </td>
+                  <td style={{ padding: '15px' }}>
+                    {/* FIXED: Changed serviceId to service and added safe navigation */}
+                    <strong style={{ display: 'block', color: '#1e293b' }}>
+                        {b.service?.name || 'Serviço não definido'}
+                    </strong>
+                    {/* FIXED: Changed vehicleId to vehicle */}
+                    <small style={{ color: '#64748b' }}>
+                        {b.vehicle ? `${b.vehicle.brand} ${b.vehicle.model} (${b.vehicle.plate})` : 'Veículo não definido'}
+                    </small>
                   </td>
                   <td style={{ padding: '15px' }}>{getStatusBadge(b.status)}</td>
                 </tr>

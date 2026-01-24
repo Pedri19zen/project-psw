@@ -90,8 +90,6 @@ input:focus {
   padding: 2rem;
 }
 
-/* ... keep your existing styles ... */
-
 .shiftGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
