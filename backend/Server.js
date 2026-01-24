@@ -15,6 +15,9 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 
+app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/workshops', require('./routes/workshops'));
+app.use('/api/vehicles', require('./routes/vehicles'));
 app.use(cors());
 app.use(express.json());
 

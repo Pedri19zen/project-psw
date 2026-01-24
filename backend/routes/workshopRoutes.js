@@ -1,6 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const Workshop = require('../models/Workshop');
+const workshopController = require('../controllers/workshopController');
+
+// --- ROTAS PÚBLICAS (WorkshopController) ---
+
+// @route   GET api/workshops
+// @desc    Listar todas as oficinas
+// @access  Public
+router.get('/', workshopController.getPublicWorkshops);
+
+// @route   GET api/workshops/:id
+// @desc    Ver detalhes e serviços da oficina
+// @access  Public
+router.get('/:id', workshopController.getWorkshopDetails);
+
+
+// --- ROTAS DE CONFIGURAÇÃO E ADMINISTRAÇÃO ---
 
 // Get the workshop configuration
 // We grab the first workshop found since we are operating in single-workshop mode for now
@@ -30,7 +46,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Update Shifts (Turnos)
-// Critical for managing availability [cite: 56, 57]
+// Critical for managing availability
 router.put('/:id/shifts', async (req, res) => {
   try {
     const { shifts } = req.body;

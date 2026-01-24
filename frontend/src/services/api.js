@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Esta é a morada do servidor que o teu colega (Membro 1) vai ligar
+// Configuração base da API
 const api = axios.create({
   baseURL: 'http://localhost:5000/api', 
 });
 
-// Isto serve para enviar o "token" de login automaticamente em cada pedido
+// Interceptor: Adiciona o token automaticamente a TODOS os pedidos
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -13,5 +13,50 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// --- Funções de Veículos ---
+
+export const getVehicles = async () => {
+  const response = await api.get('/vehicles');
+  return response.data;
+};
+
+export const addVehicle = async (vehicleData) => {
+  const response = await api.post('/vehicles', vehicleData);
+  return response.data;
+};
+
+export const deleteVehicle = async (id) => {
+  const response = await api.delete(`/vehicles/${id}`);
+  return response.data;
+};
+
+
+// --- Funções de Oficinas e Serviços ---
+
+export const getWorkshops = async () => {
+  const response = await api.get('/workshops');
+  return response.data;
+};
+
+export const getWorkshopDetails = async (id) => {
+  const response = await api.get(`/workshops/${id}`);
+  return response.data;
+};
+
+
+// --- Funções de Marcações (Bookings) ---
+
+// GET: Buscar as minhas marcações
+export const getMyBookings = async () => {
+  const response = await api.get('/bookings/my-bookings');
+  return response.data;
+};
+
+// PUT: Cancelar uma marcação
+export const cancelBooking = async (id) => {
+  const response = await api.put(`/bookings/cancel/${id}`);
+  return response.data;
+};
 
 export default api;

@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Navbar from "./components/Navbar";
 import AdminLayout from "./components/AdminLayout";
 
-// Componentes de Administração (Pastas de componentes)
+// Componentes de Administração
 import ServiceList from './components/services/ServiceList';
 import ServiceForm from './components/services/ServiceForm';
 import StaffList from './components/staff/StaffList';
@@ -15,8 +15,13 @@ import WorkshopSettings from './components/workshop/WorkshopSettings';
 // Páginas de Cliente e Auth
 import Auth from "./pages/Auth";
 import MyVehicles from "./pages/MyVehicles";
-import NewBooking from "./pages/NewBooking";
+import NewBooking from "./pages/NewBooking"; 
 import ClientDashboard from "./pages/ClientDashboard";
+import MyBookings from "./pages/MyBookings"; // <-- Certifique-se de que este import existe
+
+// --- NOVOS IMPORTS: Páginas de Oficinas ---
+import WorkshopsList from "./pages/WorkshopsList";
+import WorkshopDetails from "./pages/WorkshopDetails";
 
 // --- LÓGICA DE PROTEÇÃO DE ROTA ---
 const PrivateRoute = ({ children }) => {
@@ -43,18 +48,10 @@ function App() {
             </PrivateRoute>
           }
         >
-          {/* Redirecionamento de /admin para /admin/dashboard */}
           <Route index element={<Navigate to="dashboard" replace />} />
-          
           <Route path="dashboard" element={<h2>Dashboard Overview</h2>} />
-          
-          {/* --- ESTA É A ROTA QUE ABRE admin/services --- */}
           <Route path="services" element={<ServiceList />} />
-          
-          {/* Rota para criar novo serviço */}
           <Route path="services/new" element={<ServiceForm />} />
-          
-          {/* Outras rotas administrativas */}
           <Route path="staff" element={<StaffList />} />
           <Route path="staff/new" element={<StaffForm />} />
           <Route path="settings" element={<WorkshopSettings />} />
@@ -64,6 +61,16 @@ function App() {
         <Route path="/dashboard" element={<PrivateRoute><Navbar /><ClientDashboard /></PrivateRoute>} />
         <Route path="/veiculos" element={<PrivateRoute><Navbar /><MyVehicles /></PrivateRoute>} />
         <Route path="/agendar" element={<PrivateRoute><Navbar /><NewBooking /></PrivateRoute>} />
+        
+        {/* Nova rota adicionada aqui */}
+        <Route path="/my-bookings" element={<PrivateRoute><Navbar /><MyBookings /></PrivateRoute>} />
+        
+        {/* Rota adicional /book apontando para o agendamento */}
+        <Route path="/book" element={<PrivateRoute><Navbar /><NewBooking /></PrivateRoute>} />
+        
+        {/* --- NOVAS ROTAS DE OFICINAS --- */}
+        <Route path="/workshops" element={<PrivateRoute><Navbar /><WorkshopsList /></PrivateRoute>} />
+        <Route path="/workshops/:id" element={<PrivateRoute><Navbar /><WorkshopDetails /></PrivateRoute>} />
 
         {/* 4. SEGURANÇA */}
         <Route path="/" element={<Navigate to="/login" replace />} />
