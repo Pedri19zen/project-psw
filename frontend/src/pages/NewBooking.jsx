@@ -101,12 +101,14 @@ const NewBooking = () => {
 
       <div style={{ background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', maxWidth: '600px', margin: '20px auto' }}>
         
+        {/* Step Indicator */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '30px' }}>
           {[1, 2, 3].map(i => (
             <div key={i} style={{ width: '35px', height: '35px', borderRadius: '50%', background: step >= i ? '#2563eb' : '#e2e8f0', color: step >= i ? 'white' : '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{i}</div>
           ))}
         </div>
 
+        {/* STEP 1 */}
         {step === 1 && (
           <div>
             <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>Select Workshop & Service</h3>
@@ -153,6 +155,7 @@ const NewBooking = () => {
           </div>
         )}
 
+        {/* STEP 2 */}
         {step === 2 && (
           <div>
             <h3 style={{ marginBottom: '15px', color: '#1e293b' }}>Select Vehicle & Time</h3>
@@ -193,6 +196,7 @@ const NewBooking = () => {
           </div>
         )}
 
+        {/* STEP 3 - CONFIRMATION (Fixed Buttons) */}
         {step === 3 && (
           <div style={{ textAlign: 'center' }}>
             <h3 style={{ marginBottom: '20px', color: '#1e293b' }}>Confirm Booking</h3>
@@ -203,8 +207,35 @@ const NewBooking = () => {
               <p style={{marginBottom: '8px', color: '#333'}}><strong>Date:</strong> {selectedDate.toLocaleDateString()}</p>
               <p style={{marginBottom: '0px', color: '#333'}}><strong>Time:</strong> {selectedSlot}</p>
             </div>
-            <button onClick={handleFinalBooking} style={{ width: '100%', padding: '15px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1em' }}>Confirm & Schedule</button>
-            <button onClick={() => setStep(2)} style={{ marginTop: '15px', background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }}>Change Date/Time</button>
+            
+            {/* 1. Main Confirm Button */}
+            <button 
+              onClick={handleFinalBooking} 
+              style={{ width: '100%', padding: '15px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1em' }}
+            >
+              Confirm & Schedule
+            </button>
+            
+            {/* 2. Secondary Buttons (Back & Cancel) */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+              
+              {/* This replaces the 'white button' with a visible Grey Back Button */}
+              <button 
+                onClick={() => setStep(2)} 
+                style={{ flex: 1, padding: '15px', background: '#cbd5e1', color: '#1e293b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                Go Back
+              </button>
+
+              {/* Added a Red Cancel Button for clarity */}
+              <button 
+                onClick={() => navigate('/dashboard')} 
+                style={{ flex: 1, padding: '15px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                Cancel
+              </button>
+
+            </div>
           </div>
         )}
       </div>
