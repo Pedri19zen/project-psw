@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext'; // 1. Import Auth Context
 import styles from './AdminDashboard.module.css';
 
 const AdminDashboard = () => {
+  const { user } = useAuth(); // 2. Get User
+  const isAdmin = user?.role === 'admin'; // 3. Check Role
+
   const [stats, setStats] = useState({
     services: 0,
     staff: 0,
@@ -13,18 +17,16 @@ const AdminDashboard = () => {
   const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch data function
   const fetchAdminData = async () => {
     try {
       const [servicesRes, staffRes, bookingsRes] = await Promise.all([
         api.get('/services'),
         api.get('/staff'),
-        api.get('/bookings') // Changed to standard bookings route for simplicity or admin route
+        api.get('/bookings') 
       ]);
 
       const allBookings = Array.isArray(bookingsRes.data) ? bookingsRes.data : [];
 
-      // Logic updated for English Status
       const totalRevenue = allBookings
         .filter(b => b.status === 'Completed') 
         .reduce((acc, curr) => acc + (curr.service?.price || 0), 0);
@@ -48,11 +50,9 @@ const AdminDashboard = () => {
     fetchAdminData();
   }, []);
 
-  // 2. Handler to change booking status
   const handleStatusUpdate = async (id, newStatus) => {
     try {
       await api.patch(`/bookings/${id}/status`, { status: newStatus });
-      // Refresh data to show changes immediately
       fetchAdminData();
     } catch (err) {
       console.error("Error updating status:", err);
@@ -181,23 +181,26 @@ const AdminDashboard = () => {
         </table>
       </div>
 
-      <div style={{ marginTop: '30px' }}>
-        <h3>Quick Actions</h3>
-        <div className={styles.actionsGrid}>
-          <Link to="/admin/services/new" className={styles.actionCard}>
-            <span className={styles.actionIcon}>+</span>
-            <span>New Service</span>
-          </Link>
-          <Link to="/admin/staff/new" className={styles.actionCard}>
-            <span className={styles.actionIcon}>+</span>
-            <span>Register Staff</span>
-          </Link>
-          <Link to="/admin/settings" className={styles.actionCard}>
-            <span className={styles.actionIcon}>⚙️</span>
-            <span>Settings</span>
-          </Link>
+      {/* 4. ONLY SHOW QUICK ACTIONS FOR ADMIN */}
+      {isAdmin && (
+        <div style={{ marginTop: '30px' }}>
+          <h3>Quick Actions</h3>
+          <div className={styles.actionsGrid}>
+            <Link to="/admin/services/new" className={styles.actionCard}>
+              <span className={styles.actionIcon}>+</span>
+              <span>New Service</span>
+            </Link>
+            <Link to="/admin/staff/new" className={styles.actionCard}>
+              <span className={styles.actionIcon}>+</span>
+              <span>Register Staff</span>
+            </Link>
+            <Link to="/admin/settings" className={styles.actionCard}>
+              <span className={styles.actionIcon}>⚙️</span>
+              <span>Settings</span>
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

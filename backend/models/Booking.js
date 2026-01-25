@@ -34,10 +34,10 @@ const bookingSchema = new mongoose.Schema({
     type: String, // Format HH:mm
     required: true
   },
-  status: {
+ status: {
     type: String,
-    enum: ['Pendente', 'Confirmado', 'Em Progresso', 'Concluído', 'Cancelado'],
-    default: 'Pendente'
+    enum: ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'],
+    default: 'Pending'
   },
   mechanic: {
     type: mongoose.Schema.Types.ObjectId,

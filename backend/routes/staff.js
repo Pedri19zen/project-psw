@@ -3,22 +3,22 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware'); 
 
-// Create
+// Create New Staff (Admin Only)
 router.post('/', verifyToken, isAdmin, authController.registerStaff);
 
-// Read (List All)
+// Get All Staff (Admin Only)
 router.get('/', verifyToken, isAdmin, authController.getAllStaff); 
 
-// Read (List Mechanics ONLY) - Must be before /:id
+// Get Mechanics Only (Admin Only) - MUST be before /:id
 router.get('/mechanics', verifyToken, isAdmin, authController.getMechanics);
 
-// Read (Single)
+// Get Single Staff by ID
 router.get('/:id', verifyToken, isAdmin, authController.getStaffById);
 
-// Update
+// Update Staff
 router.put('/:id', verifyToken, isAdmin, authController.updateStaff);
 
-// Delete
+// Delete Staff
 router.delete('/:id', verifyToken, isAdmin, authController.deleteStaff);
 
 module.exports = router;

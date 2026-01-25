@@ -1,19 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
-// verifyToken handles the JWT, isAdmin checks the 'admin' role in req.user
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 
-// User Actions
-router.post('/', verifyToken, bookingController.createBooking);
+// Get All Bookings (Admin Only)
+// NOTE: Dashboard calls /api/bookings, so this must be the root '/'
+router.get('/', verifyToken, isAdmin, bookingController.getAllBookings);
+
+// Get Client History (Logged in User)
 router.get('/my-history', verifyToken, bookingController.getClientHistory);
 
-// Public/Shared Actions
+// Get Available Slots (Public/Auth)
 router.get('/available-slots', bookingController.getAvailableSlots);
 
-// Admin & Staff Only: Get every booking in the system
-router.get('/admin/all', verifyToken, isAdmin, bookingController.getAllBookings);
+// Create Booking (Logged in User)
+router.post('/', verifyToken, bookingController.createBooking);
 
+// Update Status (Admin Only)
 router.patch('/:id/status', verifyToken, isAdmin, bookingController.updateBookingStatus);
 
 module.exports = router;
