@@ -1,27 +1,31 @@
-const Vehicle = require('../models/Vehicle'); // Ensure this matches your actual file name (Vehicle.js or vehicleModel.js)
+const Vehicle = require('../models/Vehicle');
 const mongoose = require('mongoose');
 
-// Helper function to get User ID safely
-// This handles cases where the token payload uses 'id' instead of '_id'
 const getUserId = (user) => {
   if (!user) return null;
   return user._id || user.id;
 };
 
-// @desc    Get all vehicles for the logged-in user
-// @route   GET /api/vehicles
-// @access  Private
+// VALIDATION HELPER: Check if Year is realistic
+const isValidYear = (year) => {
+  const currentYear = new Date().getFullYear();
+  return year >= 1886 && year <= (currentYear + 1);
+};
+
+// VALIDATION HELPER: Check Portuguese/EU Plate format (XX-XX-XX)
+const isValidPlate = (plate) => {
+  const regex = /^([A-Z0-9]{2}-[A-Z0-9]{2}-[A-Z0-9]{2})$/;
+  return regex.test(plate);
+};
+
+// Get all vehicles for the logged-in user
 const getVehicles = async (req, res) => {
   try {
     const userId = getUserId(req.user);
 
-    // Safety check: Ensure user is authenticated
     if (!userId) {
-      console.log('❌ Error: User is not defined in request.');
       return res.status(401).json({ message: 'User not authorized' });
     }
-
-    console.log(`🔍 Fetching vehicles for user: ${userId}`);
 
     const vehicles = await Vehicle.find({ owner: userId });
     res.status(200).json(vehicles);
@@ -31,41 +35,43 @@ const getVehicles = async (req, res) => {
   }
 };
 
-// @desc    Create a new vehicle
-// @route   POST /api/vehicles
-// @access  Private
+// Create a new vehicle with Validation
 const createVehicle = async (req, res) => {
   try {
     const { brand, model, plate, year } = req.body;
     const userId = getUserId(req.user);
 
-    // 1. Validation: Check if fields exist
     if (!brand || !model || !plate || !year) {
       return res.status(400).json({ message: 'Please add all fields' });
     }
 
-    // 2. Validation: Check if user is authenticated
     if (!userId) {
-      console.log('❌ Error: Attempted to create vehicle without logged-in user.');
       return res.status(401).json({ message: 'User not authorized' });
     }
 
-    console.log(`🚗 Attempting to create vehicle for user ${userId}:`, req.body);
+    // 1. Validate Year
+    if (!isValidYear(year)) {
+      const currentYear = new Date().getFullYear();
+      return res.status(400).json({ message: `Invalid year. Must be between 1886 and ${currentYear + 1}.` });
+    }
 
-    // 3. Create Vehicle
+    // 2. Validate Plate
+    if (!isValidPlate(plate)) {
+      return res.status(400).json({ message: 'Invalid license plate. Please use the format XX-XX-XX.' });
+    }
+
     const vehicle = await Vehicle.create({
       brand,
       model,
-      plate,
+      plate, 
       year,
-      owner: userId, // ✅ FIX: Uses the safe ID variable
+      owner: userId,
     });
 
     res.status(201).json(vehicle);
   } catch (error) {
-    console.error('❌ CREATE ERROR:', error);
+    console.error('CREATE ERROR:', error);
     
-    // specialized error message for duplicate plates
     if (error.code === 11000) { 
         return res.status(400).json({ message: 'This license plate already exists.' });
     }
@@ -74,11 +80,19 @@ const createVehicle = async (req, res) => {
   }
 };
 
-// @desc    Update a vehicle
-// @route   PUT /api/vehicles/:id
-// @access  Private
+// Update a vehicle with Validation
 const updateVehicle = async (req, res) => {
   try {
+    const { plate, year } = req.body;
+    
+    if (year && !isValidYear(year)) {
+       return res.status(400).json({ message: 'Invalid year.' });
+    }
+
+    if (plate && !isValidPlate(plate)) {
+       return res.status(400).json({ message: 'Invalid license plate format.' });
+    }
+
     const vehicle = await Vehicle.findById(req.params.id);
     const userId = getUserId(req.user);
 
@@ -86,12 +100,10 @@ const updateVehicle = async (req, res) => {
       return res.status(404).json({ message: 'Vehicle not found' });
     }
 
-    // Check for user
     if (!userId) {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    // Ensure the logged-in user matches the vehicle owner
     if (vehicle.owner.toString() !== userId.toString()) {
       return res.status(401).json({ message: 'User not authorized' });
     }
@@ -108,9 +120,7 @@ const updateVehicle = async (req, res) => {
   }
 };
 
-// @desc    Delete a vehicle
-// @route   DELETE /api/vehicles/:id
-// @access  Private
+// Delete a vehicle
 const deleteVehicle = async (req, res) => {
   try {
     const vehicle = await Vehicle.findById(req.params.id);
@@ -124,7 +134,6 @@ const deleteVehicle = async (req, res) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    // Ensure the logged-in user matches the vehicle owner
     if (vehicle.owner.toString() !== userId.toString()) {
       return res.status(401).json({ message: 'User not authorized' });
     }

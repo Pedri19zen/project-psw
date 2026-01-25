@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 
 const ServiceSchema = new mongoose.Schema({
-  name: { type: String, required: true },       // e.g., "Oil Change"
-  type: { type: String, required: true },       // e.g., "Maintenance"
+  name: { type: String, required: true },
+  type: { type: String, default: 'Maintenance' },
   price: { type: Number, required: true },
-  duration: { type: Number, required: true },   // in minutes
-  descriptionPublic: { type: String },          // Visible to Client
-  descriptionPrivate: { type: String },         // Visible to Staff
-  // Which mechanics can do this?
+  descriptionPublic: { type: String },
+  descriptionPrivate: { type: String },
+  // Duration in minutes (Default 60 min)
+  duration: { type: Number, default: 60 }, 
   authorizedMechanics: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  workshop: { type: mongoose.Schema.Types.ObjectId, ref: 'Workshop' },
-  isActive: { type: Boolean, default: true }
-}, { timestamps: true });
+  workshop: { type: mongoose.Schema.Types.ObjectId, ref: 'Workshop' }
+});
 
 module.exports = mongoose.model('Service', ServiceSchema);

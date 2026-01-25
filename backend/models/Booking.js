@@ -22,11 +22,16 @@ const bookingSchema = new mongoose.Schema({
     required: true
   },
   date: {
-    type: String, // Formato YYYY-MM-DD
+    type: String, // Format YYYY-MM-DD
     required: true
   },
   time: {
-    type: String, // Formato HH:mm
+    type: String, // Format HH:mm (Start Time)
+    required: true
+  },
+  // NEW: We save when the service finishes to calculate overlaps
+  endTime: {
+    type: String, // Format HH:mm
     required: true
   },
   status: {
@@ -37,12 +42,6 @@ const bookingSchema = new mongoose.Schema({
   mechanic: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  },
-
-  status: {
-    type: String,
-    enum: ['Pendente', 'Confirmado', 'Em Progresso', 'Concluído', 'Cancelado'],
-    default: 'Pendente'
   }
 }, {
   timestamps: true

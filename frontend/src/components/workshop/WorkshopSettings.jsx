@@ -18,7 +18,6 @@ const WorkshopSettings = () => {
     const fetchSettings = async () => {
       try {
         const response = await api.get('/workshops/config');
-        // Check if the backend actually returned data
         if (response.data) {
           setWorkshop(response.data);
         }
@@ -31,72 +30,90 @@ const WorkshopSettings = () => {
     fetchSettings();
   }, []);
 
-  // Handle basic text inputs
   const handleBasicChange = (e) => {
     setWorkshop({ ...workshop, [e.target.name]: e.target.value });
   };
 
-  // Handle Shift changes
   const handleShiftChange = (index, field, value) => {
     const updatedShifts = [...workshop.shifts];
     updatedShifts[index][field] = value;
     setWorkshop({ ...workshop, shifts: updatedShifts });
   };
 
-  // --- FIX IS HERE: HANDLE CREATE VS UPDATE ---
+  // Helper Function: Check if times are valid
+  const validateShifts = (shifts) => {
+    for (const shift of shifts) {
+      if (shift.startTime && shift.endTime) {
+        if (shift.startTime >= shift.endTime) {
+          alert(`Erro no turno "${shift.name}": O horário de fim (${shift.endTime}) não pode ser antes do início (${shift.startTime}).`);
+          return false; // Invalid
+        }
+      }
+    }
+    return true; // Valid
+  };
+
   const handleSaveInfo = async (e) => {
     e.preventDefault();
     setMessage(null);
+
+    // Validate before Creating (POST)
+    if (!workshop._id) {
+       if (!validateShifts(workshop.shifts)) return;
+    }
+
     try {
       let res;
       if (workshop._id) {
-        // ID exists? UPDATE it
+        // UPDATE General Info
         res = await api.put(`/workshops/${workshop._id}`, {
           name: workshop.name,
           location: workshop.location,
           contact: workshop.contact
         });
       } else {
-        // No ID? CREATE it
+        // CREATE (Sends shifts too)
         res = await api.post('/workshops', {
           name: workshop.name,
           location: workshop.location,
           contact: workshop.contact,
-          shifts: workshop.shifts // Send shifts on create too
+          shifts: workshop.shifts 
         });
       }
       
-      // Update state with the new/updated data (including the new _id)
       setWorkshop(res.data);
-      setMessage({ type: 'success', text: 'Settings saved successfully!' });
+      setMessage({ type: 'success', text: 'Configuração guardada com sucesso!' });
     } catch (err) {
       console.error(err);
-      setMessage({ type: 'error', text: 'Failed to save settings.' });
+      setMessage({ type: 'error', text: 'Erro ao guardar configurações.' });
     }
   };
 
   const handleSaveShifts = async () => {
     setMessage(null);
     if (!workshop._id) {
-      setMessage({ type: 'error', text: 'Please save General Info first.' });
+      setMessage({ type: 'error', text: 'Por favor guarde as Informações Gerais primeiro.' });
       return;
     }
+
+    // Validate before Updating Shifts (PUT)
+    if (!validateShifts(workshop.shifts)) return;
 
     try {
       await api.put(`/workshops/${workshop._id}/shifts`, {
         shifts: workshop.shifts
       });
-      setMessage({ type: 'success', text: 'Shift configuration saved!' });
+      setMessage({ type: 'success', text: 'Turnos atualizados com sucesso!' });
     } catch (err) {
-      setMessage({ type: 'error', text: 'Failed to save shifts.' });
+      setMessage({ type: 'error', text: 'Erro ao guardar turnos.' });
     }
   };
 
-  if (loading) return <div className="fade-in" style={{padding: '2rem'}}>Loading settings...</div>;
+  if (loading) return <div className="fade-in" style={{padding: '2rem'}}>A carregar configurações...</div>;
 
   return (
     <div className={styles.container}>
-      <h2>Workshop Configuration</h2>
+      <h2>Configuração da Oficina</h2>
       
       {message && (
         <div className={`${styles.alert} ${styles[message.type]}`} style={{
@@ -110,9 +127,9 @@ const WorkshopSettings = () => {
 
       {/* General Info */}
       <form onSubmit={handleSaveInfo} className={styles.form}>
-        <h3>General Information</h3>
+        <h3>Informações Gerais</h3>
         <div className={styles.formGroup}>
-          <label>Workshop Name</label>
+          <label>Nome da Oficina</label>
           <input 
             type="text" name="name" 
             value={workshop.name} onChange={handleBasicChange} required
@@ -120,7 +137,7 @@ const WorkshopSettings = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label>Location</label>
+          <label>Localização</label>
           <input 
             type="text" name="location" 
             value={workshop.location} onChange={handleBasicChange} required
@@ -128,7 +145,7 @@ const WorkshopSettings = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label>Contact Phone</label>
+          <label>Contacto Telefónico</label>
           <input 
             type="text" name="contact" 
             value={workshop.contact} onChange={handleBasicChange} required
@@ -136,38 +153,37 @@ const WorkshopSettings = () => {
         </div>
 
         <div className={styles.actions}>
-          {/* Uses global 'btn-primary' class */}
           <button type="submit" className="btn-primary">
-            {workshop._id ? 'Update Info' : 'Create Configuration'}
+            {workshop._id ? 'Atualizar Info' : 'Criar Configuração'}
           </button>
         </div>
       </form>
 
-      {/* Shift Configuration (Only show if we have an ID) */}
+      {/* Shift Configuration */}
       {workshop._id && (
         <div className={styles.sectionDivider}>
-          <h3>Shift Management (Turnos)</h3>
+          <h3>Gestão de Turnos</h3>
           
           <div className={styles.shiftGrid}>
             {workshop.shifts.map((shift, index) => (
               <div key={index} className={styles.shiftCard}>
                 <h4>{shift.name}</h4>
                 <div className={styles.shiftRow}>
-                  <label>Start:</label>
+                  <label>Início:</label>
                   <input 
                     type="time" value={shift.startTime}
                     onChange={(e) => handleShiftChange(index, 'startTime', e.target.value)}
                   />
                 </div>
                 <div className={styles.shiftRow}>
-                  <label>End:</label>
+                  <label>Fim:</label>
                   <input 
                     type="time" value={shift.endTime}
                     onChange={(e) => handleShiftChange(index, 'endTime', e.target.value)}
                   />
                 </div>
                 <div className={styles.shiftRow}>
-                  <label>Slots:</label>
+                  <label>Vagas por Turno:</label>
                   <input 
                     type="number" min="0" value={shift.slotsPerShift}
                     onChange={(e) => handleShiftChange(index, 'slotsPerShift', parseInt(e.target.value))}
@@ -179,7 +195,7 @@ const WorkshopSettings = () => {
 
           <div className={styles.actions}>
             <button onClick={handleSaveShifts} className="btn-primary">
-              Update Shifts
+              Atualizar Turnos
             </button>
           </div>
         </div>

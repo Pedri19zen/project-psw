@@ -15,18 +15,18 @@ const WorkshopsList = () => {
       const data = await getWorkshops();
       setWorkshops(data);
     } catch (err) {
-      console.error("Erro ao carregar oficinas", err);
+      console.error("Error loading workshops", err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <p>A carregar oficinas...</p>;
+  if (loading) return <p>Loading workshops...</p>;
 
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', margin: 'auto' }}>
-      <h1>As Nossas Oficinas</h1>
-      <p>Selecione uma oficina para ver os serviços disponíveis.</p>
+      <h1>Our Workshops</h1>
+      <p>Select a workshop to see available services.</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', marginTop: '20px' }}>
         {workshops.map(ws => (
@@ -57,7 +57,7 @@ const WorkshopsList = () => {
               textDecoration: 'none',
               fontWeight: 'bold'
             }}>
-              Ver Serviços
+              View Services
             </Link>
           </div>
         ))}

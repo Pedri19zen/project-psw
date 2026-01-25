@@ -14,7 +14,7 @@ const WorkshopDetails = () => {
         const result = await getWorkshopDetails(id);
         setData(result);
       } catch (err) {
-        console.error("Erro", err);
+        console.error("Error", err);
       } finally {
         setLoading(false);
       }
@@ -23,18 +23,17 @@ const WorkshopDetails = () => {
   }, [id]);
 
   const handleBookClick = (serviceId) => {
-    // Redireciona para a página de agendamento (Passo 3)
-    // Passamos o ID da oficina e do serviço escolhido
+    // Redirect to booking page
     navigate(`/book?workshop=${id}&service=${serviceId}`);
   };
 
-  if (loading) return <p>A carregar informações...</p>;
-  if (!data.workshop) return <p>Oficina não encontrada.</p>;
+  if (loading) return <p>Loading information...</p>;
+  if (!data.workshop) return <p>Workshop not found.</p>;
 
   return (
     <div style={{ padding: '40px', maxWidth: '1200px', margin: 'auto' }}>
       <button onClick={() => navigate(-1)} style={{ marginBottom: '20px', cursor: 'pointer', padding: '5px 10px' }}>
-        &larr; Voltar
+        &larr; Back
       </button>
 
       <div style={{ marginBottom: '40px' }}>
@@ -42,7 +41,7 @@ const WorkshopDetails = () => {
         <p style={{ color: '#666', fontSize: '1.1em' }}>{data.workshop.location}</p>
       </div>
 
-      <h2>Serviços Disponíveis</h2>
+      <h2>Available Services</h2>
       <div style={{ display: 'grid', gap: '15px' }}>
         {data.services.length > 0 ? (
           data.services.map(service => (
@@ -59,7 +58,7 @@ const WorkshopDetails = () => {
                 <h3 style={{ margin: '0 0 5px 0' }}>{service.name}</h3>
                 <p style={{ margin: 0, color: '#555' }}>{service.description}</p>
                 <div style={{ marginTop: '5px', fontSize: '0.9em', color: '#888' }}>
-                  Duração estimada: {service.duration} min
+                  Estimated duration: {service.duration} min
                 </div>
               </div>
               
@@ -79,13 +78,13 @@ const WorkshopDetails = () => {
                     fontWeight: 'bold'
                   }}
                 >
-                  Agendar
+                  Book Now
                 </button>
               </div>
             </div>
           ))
         ) : (
-          <p>Esta oficina ainda não tem serviços configurados.</p>
+          <p>This workshop has no services configured.</p>
         )}
       </div>
     </div>

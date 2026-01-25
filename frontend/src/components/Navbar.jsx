@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 const Navbar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
-  // Removi a linha do userRole que causava o erro por não ser usada
 
   const handleLogout = () => {
     localStorage.clear(); 
@@ -29,14 +28,14 @@ const Navbar = () => {
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
         {token ? (
           <>
-            <Link to="/dashboard" style={linkStyle}>Histórico</Link>
-            <Link to="/veiculos" style={linkStyle}>Meus Veículos</Link>
+            <Link to="/dashboard" style={linkStyle}>History</Link>
+            <Link to="/veiculos" style={linkStyle}>My Vehicles</Link>
             <Link to="/agendar" style={{ 
               ...linkStyle, 
               background: 'rgba(255,255,255,0.2)', 
               padding: '8px 15px', 
               borderRadius: '8px' 
-            }}>Nova Marcação</Link>
+            }}>New Booking</Link>
             
             <button 
               onClick={handleLogout}
@@ -51,11 +50,11 @@ const Navbar = () => {
                 cursor: 'pointer'
               }}
             >
-              Sair
+              Logout
             </button>
           </>
         ) : (
-          <Link to="/login" style={linkStyle}>Login / Entrar</Link>
+          <Link to="/login" style={linkStyle}>Login</Link>
         )}
       </div>
     </nav>

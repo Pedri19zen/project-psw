@@ -4,32 +4,24 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 
-// MODELS (Required for the Repair Script)
+// MODELS
 const User = require('./models/User'); 
 const Workshop = require('./models/Workshop');
 const Service = require('./models/Service');
-
-// ROUTES
-const workshopRoutes = require('./routes/workshopRoutes');
-const serviceRoutes = require('./routes/serviceRoutes');
-const staffRoutes = require('./routes/staffRoutes');
-const authRoutes = require('./routes/auth'); 
-const bookingRoutes = require('./routes/bookings'); 
-const vehicleRoutes = require('./routes/vehicles'); 
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// USE ROUTES
-app.use('/api/auth', authRoutes); 
-app.use('/api/workshops', workshopRoutes);
-app.use('/api/services', serviceRoutes);
-app.use('/api/staff', staffRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/vehicles', vehicleRoutes);
+// --- ROUTES ---
+app.use('/api/auth', require('./routes/auth')); 
+app.use('/api/workshops', require('./routes/workshopRoutes'));
+app.use('/api/services', require('./routes/serviceRoutes'));
+app.use('/api/bookings', require('./routes/bookings')); 
+app.use('/api/vehicles', require('./routes/vehicles')); 
+app.use('/api/staff', require('./routes/staff')); 
 
-// --- 1. SEED USERS (Admin/Staff) ---
+// --- 1. SEED USERS ---
 const seedUsers = async () => {
   try {
     const adminExists = await User.findOne({ email: 'admin@repro.com' });
@@ -41,48 +33,55 @@ const seedUsers = async () => {
         password: hashedAdminPassword,
         role: 'admin'
       }).save();
-      console.log('✅ Account ADMIN ready');
+      console.log(' Account ADMIN ready');
     }
   } catch (err) {
     console.error('Error seeding users:', err);
   }
 };
 
-// --- 2. REPAIR DATABASE (The Fix for your "No Services" bug) ---
+// --- 2. REPAIR DATABASE (Services & Mechanics) ---
 const repairDatabase = async () => {
   try {
     // A. Find the main workshop
     const workshop = await Workshop.findOne();
     if (!workshop) {
-      console.log("⚠️ REPAIR SKIPPED: No workshop found. Please create one in Admin Panel.");
+      console.log(" REPAIR SKIPPED: No workshop found. Please create one in Settings.");
       return;
     }
 
-    // B. Find ALL services
+    // B. Fix Services (Orphans)
     const services = await Service.find();
-    if (services.length === 0) return;
+    if (services.length > 0) {
+      const orphanServices = services.filter(s => !s.workshop || s.workshop.toString() !== workshop._id.toString());
+      if (orphanServices.length > 0) {
+        console.log(`🔧 REPAIR: Linking ${orphanServices.length} services to workshop...`);
+        await Service.updateMany({}, { workshop: workshop._id });
+        // Update workshop array
+        const allServiceIds = await Service.find().distinct('_id');
+        workshop.services = allServiceIds;
+        await workshop.save();
+      }
+    }
 
-    // C. Check if they are orphans (missing workshop link)
-    const orphans = services.filter(s => !s.workshop || s.workshop.toString() !== workshop._id.toString());
-
-    if (orphans.length > 0) {
-      console.log(`🔧 REPAIRING: Linking ${orphans.length} orphaned services to "${workshop.name}"...`);
-      
-      // 1. Update all services to point to this workshop
-      await Service.updateMany({}, { workshop: workshop._id });
-      
-      // 2. Update workshop to include all service IDs
-      const allServiceIds = services.map(s => s._id);
-      workshop.services = allServiceIds;
-      await workshop.save();
-      
-      console.log("✅ REPAIR COMPLETE: All services are now visible!");
+    //  C. FIX MECHANICS (The "No Shifts" Fix)
+    // Find mechanics that don't have a workshop assigned
+    const orphanMechanics = await User.find({ role: 'mechanic', workshop: null });
+    
+    if (orphanMechanics.length > 0) {
+      console.log(`👨‍🔧 REPAIR: Linking ${orphanMechanics.length} mechanics to workshop...`);
+      // Update all mechanics to belong to the main workshop
+      await User.updateMany(
+        { role: 'mechanic', workshop: null }, 
+        { workshop: workshop._id }
+      );
+      console.log(" MECHANICS FIXED: Shifts should now appear!");
     } else {
-      console.log("✅ Database Integrity Check: OK (Services are properly linked)");
+      console.log(" Database Check: All mechanics are properly linked.");
     }
 
   } catch (err) {
-    console.error("❌ Repair Failed:", err);
+    console.error(" Repair Failed:", err);
   }
 };
 
@@ -91,7 +90,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(async () => {
     console.log('Server connected to MongoDB Atlas');
     await seedUsers(); 
-    await repairDatabase(); // <--- RUNS THE FIX ON STARTUP
+    await repairDatabase(); // <--- This will now fix your mechanics!
   })
   .catch((err) => console.error('Server DB connection error:', err));
 

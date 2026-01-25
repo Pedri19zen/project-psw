@@ -67,6 +67,7 @@ function App() {
             
             <Route path="staff" element={<StaffList />} />
             <Route path="staff/new" element={<StaffForm />} />
+            <Route path="staff/edit/:id" element={<StaffForm />} />
             <Route path="settings" element={<WorkshopSettings />} />
           </Route>
 

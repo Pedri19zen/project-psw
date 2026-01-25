@@ -13,19 +13,20 @@ const AdminDashboard = () => {
   const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch data function (moved out so it can be called after updates)
+  // 1. Fetch data function
   const fetchAdminData = async () => {
     try {
       const [servicesRes, staffRes, bookingsRes] = await Promise.all([
         api.get('/services'),
-        api.get('/staff/mechanics'),
-        api.get('/bookings/admin/all')
+        api.get('/staff'),
+        api.get('/bookings') // Changed to standard bookings route for simplicity or admin route
       ]);
 
       const allBookings = Array.isArray(bookingsRes.data) ? bookingsRes.data : [];
 
+      // Logic updated for English Status
       const totalRevenue = allBookings
-        .filter(b => b.status === 'Concluído')
+        .filter(b => b.status === 'Completed') 
         .reduce((acc, curr) => acc + (curr.service?.price || 0), 0);
 
       setStats({
@@ -47,25 +48,25 @@ const AdminDashboard = () => {
     fetchAdminData();
   }, []);
 
-  // 2. Handler to change booking status (Accept/Decline/Complete)
+  // 2. Handler to change booking status
   const handleStatusUpdate = async (id, newStatus) => {
     try {
       await api.patch(`/bookings/${id}/status`, { status: newStatus });
       // Refresh data to show changes immediately
       fetchAdminData();
     } catch (err) {
-      console.error("Erro ao atualizar estado:", err);
-      alert("Não foi possível atualizar o estado da marcação.");
+      console.error("Error updating status:", err);
+      alert("Could not update booking status.");
     }
   };
 
   const getStatusBadge = (status) => {
     const stylesMap = {
-      'Concluído': { bg: '#d1fae5', text: '#065f46' },
-      'Em Progresso': { bg: '#dbeafe', text: '#1e40af' },
-      'Pendente': { bg: '#fef3c7', text: '#92400e' },
-      'Cancelado': { bg: '#fee2e2', text: '#b91c1c' },
-      'Confirmado': { bg: '#dcfce7', text: '#15803d' }
+      'Completed': { bg: '#d1fae5', text: '#065f46' },
+      'In Progress': { bg: '#dbeafe', text: '#1e40af' },
+      'Pending': { bg: '#fef3c7', text: '#92400e' },
+      'Cancelled': { bg: '#fee2e2', text: '#b91c1c' },
+      'Confirmed': { bg: '#dcfce7', text: '#15803d' }
     };
     const current = stylesMap[status] || { bg: '#f1f5f9', text: '#475569' };
     return (
@@ -82,53 +83,53 @@ const AdminDashboard = () => {
     );
   };
 
-  if (loading) return <div className="fade-in" style={{padding: '2rem'}}>A carregar painel...</div>;
+  if (loading) return <div className="fade-in" style={{padding: '2rem'}}>Loading dashboard...</div>;
 
   return (
     <div className={styles.container}>
-      <h2 style={{ marginBottom: '20px' }}>Visão Geral do Sistema</h2>
+      <h2 style={{ marginBottom: '20px' }}>System Overview</h2>
       
       <div className={styles.statsGrid}>
         <div className={styles.card}>
           <div className={styles.cardIcon}>🔧</div>
           <div className={styles.cardInfo}>
             <h3>{stats.services}</h3>
-            <p>Serviços Ativos</p>
+            <p>Active Services</p>
           </div>
         </div>
         <div className={styles.card}>
           <div className={styles.cardIcon}>👥</div>
           <div className={styles.cardInfo}>
             <h3>{stats.staff}</h3>
-            <p>Mecânicos</p>
+            <p>Mechanics</p>
           </div>
         </div>
         <div className={styles.card}>
           <div className={styles.cardIcon}>📅</div>
           <div className={styles.cardInfo}>
             <h3>{stats.bookings}</h3>
-            <p>Total de Marcações</p>
+            <p>Total Bookings</p>
           </div>
         </div>
         <div className={styles.card}>
           <div className={styles.cardIcon}>💶</div>
           <div className={styles.cardInfo}>
             <h3>{stats.revenue}€</h3>
-            <p>Receita (Concluídos)</p>
+            <p>Revenue (Completed)</p>
           </div>
         </div>
       </div>
 
       <div style={{ marginTop: '30px', background: 'white', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-        <h3 style={{ marginBottom: '20px' }}>Intervenções Recentes</h3>
+        <h3 style={{ marginBottom: '20px' }}>Recent Bookings</h3>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ textAlign: 'left', color: '#64748b', borderBottom: '2px solid #f1f5f9' }}>
-              <th style={{ padding: '12px' }}>Data</th>
-              <th style={{ padding: '12px' }}>Cliente</th>
-              <th style={{ padding: '12px' }}>Serviço</th>
-              <th style={{ padding: '12px' }}>Estado</th>
-              <th style={{ padding: '12px' }}>Ações</th>
+              <th style={{ padding: '12px' }}>Date</th>
+              <th style={{ padding: '12px' }}>Client</th>
+              <th style={{ padding: '12px' }}>Service</th>
+              <th style={{ padding: '12px' }}>Status</th>
+              <th style={{ padding: '12px' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -136,35 +137,35 @@ const AdminDashboard = () => {
               recentBookings.map(b => (
                 <tr key={b._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '12px' }}>{new Date(b.date).toLocaleDateString()}</td>
-                  <td style={{ padding: '12px' }}><strong>{b.client?.name || 'Utilizador'}</strong></td>
-                  <td style={{ padding: '12px' }}>{b.service?.name || 'Serviço'}</td>
+                  <td style={{ padding: '12px' }}><strong>{b.client?.name || 'User'}</strong></td>
+                  <td style={{ padding: '12px' }}>{b.service?.name || 'Service'}</td>
                   <td style={{ padding: '12px' }}>{getStatusBadge(b.status)}</td>
                   <td style={{ padding: '12px' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      {/* ACCPET / DECLINE logic */}
-                      {b.status === 'Pendente' && (
+                      {/* ACCEPT / DECLINE logic */}
+                      {b.status === 'Pending' && (
                         <>
                           <button 
-                            onClick={() => handleStatusUpdate(b._id, 'Confirmado')}
+                            onClick={() => handleStatusUpdate(b._id, 'Confirmed')}
                             style={{ background: '#22c55e', color: 'white', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
                           >
-                            Aceitar
+                            Accept
                           </button>
                           <button 
-                            onClick={() => handleStatusUpdate(b._id, 'Cancelado')}
+                            onClick={() => handleStatusUpdate(b._id, 'Cancelled')}
                             style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
                           >
-                            Recusar
+                            Decline
                           </button>
                         </>
                       )}
                       {/* COMPLETE logic */}
-                      {b.status === 'Confirmado' && (
+                      {b.status === 'Confirmed' && (
                         <button 
-                          onClick={() => handleStatusUpdate(b._id, 'Concluído')}
+                          onClick={() => handleStatusUpdate(b._id, 'Completed')}
                           style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
                         >
-                          Concluir
+                          Complete
                         </button>
                       )}
                     </div>
@@ -173,7 +174,7 @@ const AdminDashboard = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>Nenhuma marcação encontrada.</td>
+                <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>No bookings found.</td>
               </tr>
             )}
           </tbody>
@@ -181,19 +182,19 @@ const AdminDashboard = () => {
       </div>
 
       <div style={{ marginTop: '30px' }}>
-        <h3>Ações Rápidas</h3>
+        <h3>Quick Actions</h3>
         <div className={styles.actionsGrid}>
           <Link to="/admin/services/new" className={styles.actionCard}>
             <span className={styles.actionIcon}>+</span>
-            <span>Novo Serviço</span>
+            <span>New Service</span>
           </Link>
           <Link to="/admin/staff/new" className={styles.actionCard}>
             <span className={styles.actionIcon}>+</span>
-            <span>Registar Staff</span>
+            <span>Register Staff</span>
           </Link>
           <Link to="/admin/settings" className={styles.actionCard}>
             <span className={styles.actionIcon}>⚙️</span>
-            <span>Configurar Oficina</span>
+            <span>Settings</span>
           </Link>
         </div>
       </div>
