@@ -1,10 +1,9 @@
 import axios from 'axios';
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Configuração base da API
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api', 
+  baseURL,
 });
-
 // Interceptor: Adiciona o token automaticamente a TODOS os pedidos
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
