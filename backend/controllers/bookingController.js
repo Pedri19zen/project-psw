@@ -7,21 +7,18 @@ const mongoose = require('mongoose');
 
 const getUserId = (user) => (user?._id || user?.id || user?.userId);
 
-// ✅ HELPER: Add minutes to "HH:mm"
 const addMinutes = (time, minutes) => {
   const [h, m] = time.split(':').map(Number);
-  const date = new Date();
-  date.setHours(h, m, 0, 0);
-  date.setMinutes(date.getMinutes() + minutes);
-  return date.toTimeString().slice(0, 5);
+  const totalMinutes = h * 60 + m + minutes;
+  const newH = Math.floor(totalMinutes / 60);
+  const newM = totalMinutes % 60;
+  return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
 };
 
-// ✅ HELPER: Check overlap
 const isOverlapping = (startA, endA, startB, endB) => {
   return startA < endB && startB < endA;
 };
 
-// 1. Get ALL Bookings (Admin)
 exports.getAllBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
@@ -32,15 +29,12 @@ exports.getAllBookings = async (req, res) => {
       .populate('mechanic', 'name')
       .sort({ date: -1, time: -1 });
 
-    console.log(`Admin: Found ${bookings.length} total bookings.`);
     res.json(bookings);
   } catch (error) {
-    console.error("Admin Fetch Error:", error.message);
     res.status(500).json({ msg: 'Error loading bookings.' });
   }
 };
 
-// 2. Create a New Booking (Duration Aware)
 exports.createBooking = async (req, res) => {
   try {
     const { workshopId, serviceId, vehicleId, date, time } = req.body;
@@ -48,29 +42,25 @@ exports.createBooking = async (req, res) => {
 
     if (!userId) return res.status(401).json({ msg: 'User not authenticated.' });
 
-    // Validation
     const vehicle = await Vehicle.findById(vehicleId);
     if (!vehicle) return res.status(404).json({ msg: 'Vehicle not found.' });
     if (vehicle.owner.toString() !== userId.toString()) {
       return res.status(403).json({ msg: 'Access denied: You do not own this vehicle.' });
     }
 
-    // Get Service Duration
     const service = await Service.findById(serviceId);
     if (!service) return res.status(404).json({ msg: 'Service not found.' });
 
     const duration = service.duration || 60;
     const endTime = addMinutes(time, duration);
 
-    // Find Mechanics
     const mechanics = await User.find({ role: 'mechanic', workshop: workshopId });
     if (mechanics.length === 0) return res.status(400).json({ msg: 'No mechanics available in this workshop.' });
 
-    // Find Conflicting Bookings
     const conflictingBookings = await Booking.find({
       workshop: workshopId,
       date: date,
-      status: { $ne: 'Cancelled' }, // English status
+      status: { $ne: 'Cancelled' },
       $or: [
         { time: { $lt: endTime }, endTime: { $gt: time } }
       ]
@@ -91,21 +81,18 @@ exports.createBooking = async (req, res) => {
       mechanic: availableMechanic._id,
       date,
       time,
-      endTime, // ✅ Saved for overlap checks
-      status: 'Pending' // English status
+      endTime,
+      status: 'Pending'
     });
 
     const savedBooking = await newBooking.save();
-    console.log(`Booking Created: ${savedBooking._id}`);
     res.status(201).json(savedBooking);
 
   } catch (error) {
-    console.error("createBooking Error:", error.message);
     res.status(500).json({ msg: 'Error creating booking.', error: error.message });
   }
 };
 
-// 3. Get Client History
 exports.getClientHistory = async (req, res) => {
   try {
     const userId = getUserId(req.user);
@@ -118,34 +105,28 @@ exports.getClientHistory = async (req, res) => {
       .populate('mechanic', 'name')
       .sort({ date: -1 });
 
-    console.log(`Found ${bookings.length} bookings for user ${userId}`);
     res.json(bookings);
   } catch (error) {
-    console.error("History Error:", error.message);
     res.status(500).json({ msg: 'Error fetching history.' });
   }
 };
 
-// 4. Get Available Slots (Duration Aware)
 exports.getAvailableSlots = async (req, res) => {
   try {
     const { workshopId, date, serviceId } = req.query;
     if (!workshopId || !date) return res.status(400).json([]);
 
-    // 1. Get Duration
     let duration = 60;
     if (serviceId) {
       const service = await Service.findById(serviceId);
       if (service && service.duration) duration = service.duration;
     }
 
-    // 2. Get Workshop Shifts
     const workshop = await Workshop.findById(workshopId);
     if (!workshop || !workshop.shifts || workshop.shifts.length === 0) {
       return res.json([]); 
     }
 
-    // 3. Generate Base Start Times
     let possibleStarts = [];
     workshop.shifts.forEach(shift => {
       let current = parseInt(shift.startTime.split(':')[0]);
@@ -156,7 +137,6 @@ exports.getAvailableSlots = async (req, res) => {
       }
     });
 
-    // 4. Get Mechanics & Bookings
     const mechanics = await User.find({ role: 'mechanic', workshop: workshopId });
     if (mechanics.length === 0) return res.json([]); 
 
@@ -166,29 +146,55 @@ exports.getAvailableSlots = async (req, res) => {
       status: { $ne: 'Cancelled' }
     });
 
-    // 5. Filter Slots based on Duration Overlap
-    const availableSlots = possibleStarts.filter(startTime => {
+    let availableSlots = possibleStarts.filter(startTime => {
       const requestedEndTime = addMinutes(startTime, duration);
 
-      // Which mechanics are busy during this specific window?
       const busyMechanics = bookings.filter(b => {
         return isOverlapping(b.time, b.endTime, startTime, requestedEndTime);
       }).map(b => b.mechanic.toString());
 
-      // Are there any free mechanics?
       const freeMechanicCount = mechanics.length - new Set(busyMechanics).size;
       return freeMechanicCount > 0;
     });
 
+    const now = new Date();
+
+    const portugalDateFormatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Lisbon',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    const portugalDateString = portugalDateFormatter.format(now);
+
+    if (date < portugalDateString) {
+      return res.json([]);
+    }
+
+    if (date === portugalDateString) {
+      const portugalHourFormatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Lisbon',
+        hour: 'numeric',
+        hour12: false
+      });
+      
+      const currentHour = parseInt(portugalHourFormatter.format(now));
+
+      availableSlots = availableSlots.filter(slot => {
+        const [slotHour] = slot.split(':').map(Number);
+        if (slotHour >= currentHour) return true;
+        return false;
+      });
+    }
+
     res.json(availableSlots);
 
   } catch (error) {
-    console.error("Slots Error:", error);
+    console.error(error);
     res.json([]);
   }
 };
 
-// 5. Update Booking Status
 exports.updateBookingStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -207,7 +213,6 @@ exports.updateBookingStatus = async (req, res) => {
 
     if (!booking) return res.status(404).json({ msg: 'Booking not found.' });
 
-    console.log(`Status updated to: ${status} for Booking ${id}`);
     res.json(booking);
   } catch (error) {
     res.status(500).json({ msg: 'Error updating status.' });

@@ -1,10 +1,11 @@
 .container {
   max-width: 800px;
   margin: 0 auto;
-  background: var(--bg-white);
+  background: #1e293b;
   padding: 2rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  border: 1px solid #334155;
 }
 
 .form {
@@ -27,27 +28,30 @@
 
 .formGroup label {
   font-weight: 500;
-  color: var(--secondary-color);
+  color: #94a3b8;
   font-size: 0.9rem;
 }
 
 input, select, textarea {
   padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: 1px solid #475569;
+  border-radius: 8px;
   font-family: inherit;
+  background-color: #0f172a;
+  color: #f1f5f9;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
 .mechanicsSection {
-  background-color: var(--bg-main);
-  padding: 1rem;
-  border-radius: var(--radius-md);
+  background-color: #0f172a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #334155;
 }
 
 .checkboxGrid {
@@ -63,6 +67,12 @@ input:focus, select:focus, textarea:focus {
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #3b82f6;
 }
 
 .actions {
@@ -71,19 +81,35 @@ input:focus, select:focus, textarea:focus {
   gap: 1rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid #334155;
 }
 
 .submitBtn {
-  background-color: var(--primary-color);
+  background-color: #2563eb;
   color: white;
   padding: 0.75rem 2rem;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submitBtn:hover {
+  background-color: #1d4ed8;
 }
 
 .cancelBtn {
   background: transparent;
-  color: var(--secondary-color);
+  color: #94a3b8;
   padding: 0.75rem 1rem;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+  background: #334155;
+  color: #f1f5f9;
 }

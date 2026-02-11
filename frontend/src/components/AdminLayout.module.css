@@ -1,37 +1,35 @@
-/* Layout Principal */
 .container {
   display: flex;
   min-height: 100vh;
-  background-color: #f1f5f9; /* Cinza muito claro */
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  background-color: #0f172a; 
+  color: #f1f5f9;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* --- SIDEBAR (Barra Lateral) --- */
 .sidebar {
   width: 260px;
-  background-color: #0f172a; /* Azul Marinho Escuro */
-  color: white;
+  background-color: #1e293b; 
+  color: #f1f5f9;
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-  flex-shrink: 0; /* Impede a sidebar de encolher */
+  border-right: 1px solid #334155;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+  flex-shrink: 0; 
 }
 
-/* Logo */
 .logo h2 {
   margin: 0 0 2.5rem 0;
   font-size: 1.8rem;
   font-weight: 800;
   letter-spacing: -1px;
-  color: #fff;
+  color: #f1f5f9;
 }
 
 .logo span {
-  color: #3b82f6; /* Azul Brilhante */
+  color: #3b82f6; 
 }
 
-/* Navegação */
 .nav {
   display: flex;
   flex-direction: column;
@@ -42,7 +40,7 @@
 .divider {
   font-size: 0.75rem;
   text-transform: uppercase;
-  color: #64748b;
+  color: #94a3b8;
   margin-top: 1rem;
   margin-bottom: 0.25rem;
   padding-left: 0.5rem;
@@ -50,13 +48,12 @@
   font-weight: 700;
 }
 
-/* Links */
 .link {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 0.75rem 1rem;
-  color: #cbd5e1; /* Cinza Claro (Legível no escuro) */
+  color: #cbd5e1; 
   text-decoration: none;
   border-radius: 8px;
   font-weight: 500;
@@ -64,16 +61,15 @@
 }
 
 .link:hover {
-  background-color: #1e293b; /* Fundo ligeiramente mais claro */
-  color: #ffffff;
+  background-color: #334155; 
+  color: #60a5fa;
   transform: translateX(4px);
 }
 
-/* Perfil de Utilizador (Fundo da Sidebar) */
 .userProfile {
   margin-top: auto;
   padding-top: 1.5rem;
-  border-top: 1px solid #1e293b;
+  border-top: 1px solid #334155;
 }
 
 .userInfo {
@@ -84,7 +80,7 @@
   margin: 0;
   font-weight: 600;
   font-size: 0.95rem;
-  color: #fff;
+  color: #f1f5f9;
 }
 
 .userRole {
@@ -92,14 +88,14 @@
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background: #1e293b;
+  background: #0f172a;
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .logoutBtn {
   width: 100%;
-  background-color: #dc2626; /* Vermelho */
+  background-color: #b91c1c; 
   color: white;
   border: none;
   padding: 0.6rem;
@@ -110,40 +106,39 @@
 }
 
 .logoutBtn:hover {
-  background-color: #b91c1c;
+  background-color: #ef4444;
 }
 
-/* --- ÁREA PRINCIPAL --- */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Impede scroll duplo */
+  overflow: hidden; 
 }
 
 .header {
-  background: white;
+  background: #1e293b;
   padding: 1.5rem 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  border-bottom: 1px solid #334155;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
 }
 
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #1e293b;
+  color: #f1f5f9;
 }
 
 .date {
-  color: #64748b;
+  color: #94a3b8;
   font-size: 0.9rem;
 }
 
 .content {
   flex: 1;
   padding: 2.5rem;
-  overflow-y: auto; /* Scroll apenas no conteúdo */
+  overflow-y: auto; 
 }

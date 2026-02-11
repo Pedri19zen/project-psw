@@ -1,8 +1,9 @@
 .container {
-  background: var(--bg-white);
+  background: #1e293b;
   padding: 2rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  border: 1px solid #334155;
 }
 
 .header {
@@ -14,20 +15,22 @@
 
 .header h2 {
   margin: 0;
-  color: var(--primary-color);
+  color: #f1f5f9;
 }
 
 .addButton {
-  background-color: var(--primary-color);
+  background-color: #2563eb;
   color: white;
   padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   font-weight: 600;
+  border: none;
+  cursor: pointer;
   transition: background 0.2s;
 }
 
 .addButton:hover {
-  background-color: var(--primary-hover);
+  background-color: #1d4ed8;
 }
 
 .table {
@@ -39,17 +42,18 @@
 .table th {
   text-align: left;
   padding: 1rem;
-  background-color: var(--bg-main);
-  color: var(--secondary-color);
-  font-size: 0.9rem;
+  background-color: #0f172a;
+  color: #94a3b8;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-bottom: 1px solid #334155;
 }
 
 .table td {
   padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  color: var(--text-main);
+  border-bottom: 1px solid #334155;
+  color: #f1f5f9;
 }
 
 .table tr:last-child td {
@@ -57,12 +61,13 @@
 }
 
 .badge {
-  background-color: #e0f2fe;
-  color: #0369a1;
-  padding: 0.25rem 0.5rem;
+  background-color: #1e3a8a;
+  color: #93c5fd;
+  padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
+  border: 1px solid #3b82f6;
 }
 
 .actions {
@@ -72,36 +77,42 @@
 
 .editBtn, .deleteBtn {
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
 .editBtn {
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: var(--secondary-color);
+  background: #334155;
+  border: 1px solid #475569;
+  color: #cbd5e1;
 }
 
 .editBtn:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  border-color: #3b82f6;
+  color: #60a5fa;
+  background: #1e293b;
 }
 
 .deleteBtn {
   background: transparent;
-  color: var(--danger-color);
+  color: #fca5a5;
 }
 
 .deleteBtn:hover {
-  background-color: #fef2f2;
+  background-color: #7f1d1d;
+  color: #ffffff;
 }
 
 .loading, .error, .emptyState {
   text-align: center;
   padding: 3rem;
-  color: var(--secondary-color);
+  color: #94a3b8;
 }
 
 .error {
-  color: var(--danger-color);
+  color: #ef4444;
 }

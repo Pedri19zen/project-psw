@@ -10,63 +10,96 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  return (
-    <nav style={{
-      background: 'var(--primary)',
+  const styles = {
+    nav: {
+      background: '#1e293b',
       padding: '15px 30px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      boxShadow: 'var(--shadow)',
-      color: 'white'
-    }}>
-      <div style={{ fontWeight: 'bold', fontSize: '1.2rem', letterSpacing: '1px' }}>
-        <span style={{ fontWeight: '600' }}>REPRO</span>
-        <span style={{ fontWeight: '300' }}>AUTO</span>
-      </div>
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+      borderBottom: '1px solid #334155',
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000
+    },
+    logo: {
+      textDecoration: 'none',
+      fontSize: '1.5rem',
+      letterSpacing: '-0.5px',
+      color: '#f1f5f9'
+    },
+    logoAccent: {
+      color: '#3b82f6',
+      fontWeight: '800'
+    },
+    logoText: {
+      fontWeight: '400'
+    },
+    linksContainer: {
+      display: 'flex',
+      gap: '20px',
+      alignItems: 'center'
+    },
+    link: {
+      color: '#cbd5e1',
+      textDecoration: 'none',
+      fontSize: '0.95rem',
+      fontWeight: '500',
+      transition: 'color 0.2s'
+    },
+    primaryBtn: {
+      background: '#2563eb',
+      color: 'white',
+      textDecoration: 'none',
+      padding: '8px 16px',
+      borderRadius: '8px',
+      fontWeight: '600',
+      fontSize: '0.9rem',
+      transition: 'background 0.2s'
+    },
+    logoutBtn: {
+      background: '#ef4444',
+      color: 'white',
+      border: 'none',
+      padding: '8px 16px',
+      borderRadius: '8px',
+      fontWeight: '600',
+      fontSize: '0.9rem',
+      cursor: 'pointer',
+      marginLeft: '10px'
+    }
+  };
 
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+  return (
+    <nav style={styles.nav}>
+      <Link to="/" style={styles.logo}>
+        <span style={styles.logoAccent}>REPRO</span>
+        <span style={styles.logoText}>AUTO</span>
+      </Link>
+
+      <div style={styles.linksContainer}>
         {token ? (
           <>
-            <Link to="/dashboard" style={linkStyle}>History</Link>
-            <Link to="/veiculos" style={linkStyle}>My Vehicles</Link>
-            <Link to="/agendar" style={{ 
-              ...linkStyle, 
-              background: 'rgba(255,255,255,0.2)', 
-              padding: '8px 15px', 
-              borderRadius: '8px' 
-            }}>New Booking</Link>
+            <Link to="/workshops" style={styles.link}>Workshops</Link>
+            <Link to="/veiculos" style={styles.link}>My Vehicles</Link>
+            <Link to="/dashboard" style={styles.link}>History</Link>
+            
+            <Link to="/agendar" style={styles.primaryBtn}>+ New Booking</Link>
             
             <button 
               onClick={handleLogout}
-              style={{
-                background: 'var(--danger)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 15px',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                marginLeft: '10px',
-                cursor: 'pointer'
-              }}
+              style={styles.logoutBtn}
             >
               Logout
             </button>
           </>
         ) : (
-          <Link to="/login" style={linkStyle}>Login</Link>
+          <Link to="/login" style={styles.primaryBtn}>Login</Link>
         )}
       </div>
     </nav>
   );
-};
-
-const linkStyle = {
-  color: 'white',
-  textDecoration: 'none',
-  fontSize: '14px',
-  fontWeight: '500',
-  transition: 'opacity 0.2s'
 };
 
 export default Navbar;

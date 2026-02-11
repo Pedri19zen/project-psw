@@ -13,18 +13,11 @@ const Auth = () => {
   const { login } = useAuth(); 
 
   const handleRedirect = (role) => {
-    // 1. Force lowercase to avoid case-sensitivity issues
     const userRole = role ? role.toLowerCase() : 'client';
     
-    // DEBUG: Check this in your browser console (F12)
-    console.log("👉 DEBUG: Attempting redirect for role:", userRole);
-
-    // 2. The Check
     if (['admin', 'staff', 'mechanic'].includes(userRole)) {
-      console.log("✅ Recognized as Team Member -> Sending to Admin Dashboard");
       navigate('/admin/dashboard');
     } else {
-      console.log("ℹ️ Recognized as Client -> Sending to Client Dashboard");
       navigate('/dashboard');
     }
   };
@@ -35,8 +28,6 @@ const Auth = () => {
       const endpoint = isLogin ? '/auth/login' : '/auth/register';
       const res = await api.post(endpoint, formData);
       
-      console.log("Login Success. Server sent:", res.data);
-
       login({
         token: res.data.token,
         role: res.data.role,
@@ -46,7 +37,7 @@ const Auth = () => {
       handleRedirect(res.data.role);
 
     } catch (error) {
-      console.error("Auth Error:", error);
+      console.error(error);
       const errorMsg = error.response?.data?.msg || "Erro na autenticação.";
       alert(errorMsg);
     }
@@ -64,17 +55,80 @@ const Auth = () => {
 
       handleRedirect(res.data.role);
     } catch (error) {
-      console.error("Google Auth Error:", error); 
+      console.error(error); 
       alert("Erro ao entrar com Google.");
     }
   };
 
+  const styles = {
+    container: { 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh', 
+      padding: '20px', 
+      background: '#0f172a' 
+    },
+    card: { 
+      maxWidth: '420px', 
+      width: '100%', 
+      background: '#1e293b', 
+      padding: '40px', 
+      borderRadius: '24px', 
+      boxShadow: '0 10px 25px rgba(0,0,0,0.4)', 
+      textAlign: 'center',
+      border: '1px solid #334155'
+    },
+    title: { 
+      color: '#3b82f6', 
+      marginBottom: '20px',
+      fontWeight: '800'
+    },
+    input: { 
+      padding: '14px', 
+      borderRadius: '12px', 
+      border: '1px solid #334155', 
+      outline: 'none', 
+      fontSize: '16px',
+      background: '#0f172a',
+      color: '#f1f5f9'
+    },
+    button: { 
+      padding: '14px', 
+      background: '#2563eb', 
+      color: 'white', 
+      border: 'none', 
+      borderRadius: '12px', 
+      fontWeight: 'bold', 
+      fontSize: '16px', 
+      cursor: 'pointer',
+      marginTop: '10px'
+    },
+    divider: { 
+      margin: '25px 0', 
+      display: 'flex', 
+      alignItems: 'center' 
+    },
+    line: { 
+      flex: 1, 
+      height: '1px', 
+      background: '#334155' 
+    },
+    toggle: { 
+      marginTop: '25px', 
+      color: '#60a5fa', 
+      cursor: 'pointer', 
+      fontSize: '14px', 
+      fontWeight: '500' 
+    }
+  };
+
   return (
-    <div className="fade-in" style={containerStyle}>
-      <div style={cardStyle}>
+    <div className="fade-in" style={styles.container}>
+      <div style={styles.card}>
         <img src={logoImg} alt="Repro Logo" style={{ width: '180px', marginBottom: '15px' }} />
         
-        <h2 style={{ color: '#2563eb', marginBottom: '5px' }}>
+        <h2 style={styles.title}>
           {isLogin ? 'Iniciar Sessão' : 'Criar Conta'}
         </h2>
         
@@ -84,31 +138,31 @@ const Auth = () => {
               type="text" 
               placeholder="Nome Completo" 
               onChange={e => setFormData({...formData, name: e.target.value})} 
-              required style={inputStyle} 
+              required style={styles.input} 
             />
           )}
           <input 
             type="email" 
             placeholder="Email" 
             onChange={e => setFormData({...formData, email: e.target.value})} 
-            required style={inputStyle} 
+            required style={styles.input} 
           />
           <input 
             type="password" 
             placeholder="Password" 
             onChange={e => setFormData({...formData, password: e.target.value})} 
-            required style={inputStyle} 
+            required style={styles.input} 
           />
           
-          <button type="submit" style={buttonStyle}>
+          <button type="submit" style={styles.button}>
             {isLogin ? 'Entrar' : 'Finalizar Registo'}
           </button>
         </form>
 
-        <div style={dividerStyle}>
-          <div style={lineStyle}></div>
+        <div style={styles.divider}>
+          <div style={styles.line}></div>
           <span style={{ padding: '0 10px', fontSize: '12px', color: '#94a3b8' }}>OU</span>
-          <div style={lineStyle}></div>
+          <div style={styles.line}></div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -120,21 +174,12 @@ const Auth = () => {
           />
         </div>
 
-        <p onClick={() => setIsLogin(!isLogin)} style={toggleStyle}>
+        <p onClick={() => setIsLogin(!isLogin)} style={styles.toggle}>
           {isLogin ? 'Ainda não tem conta? Clique aqui' : 'Já tem uma conta? Inicie sessão'}
         </p>
       </div>
     </div>
   );
 };
-
-// Styles
-const containerStyle = { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '20px', background: '#f8fafc' };
-const cardStyle = { maxWidth: '420px', width: '100%', background: 'white', padding: '40px', borderRadius: '24px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', textAlign: 'center' };
-const inputStyle = { padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', outline: 'none', fontSize: '16px' };
-const buttonStyle = { padding: '14px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' };
-const dividerStyle = { margin: '25px 0', display: 'flex', alignItems: 'center' };
-const lineStyle = { flex: 1, height: '1px', background: '#f1f5f9' };
-const toggleStyle = { marginTop: '25px', color: '#2563eb', cursor: 'pointer', fontSize: '14px', fontWeight: '500' };
 
 export default Auth;

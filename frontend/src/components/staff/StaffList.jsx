@@ -6,14 +6,13 @@ const StaffList = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Staff
   const fetchStaff = async () => {
     try {
       const res = await api.get('/staff'); 
       setStaff(res.data);
       setLoading(false);
     } catch (err) {
-      console.error("Error fetching staff:", err);
+      console.error(err);
       setLoading(false);
     }
   };
@@ -22,12 +21,10 @@ const StaffList = () => {
     fetchStaff();
   }, []);
 
-  // Handle Delete
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to remove this staff member?")) {
       try {
         await api.delete(`/staff/${id}`);
-        // Remove from UI immediately
         setStaff(staff.filter((person) => person._id !== id));
       } catch (err) {
         alert("Error removing staff member.");
@@ -35,71 +32,67 @@ const StaffList = () => {
     }
   };
 
-  if (loading) return <div style={{padding: '2rem'}}>Loading staff...</div>;
+  const styles = {
+    container: { padding: '2rem', maxWidth: '1000px', margin: '0 auto', background: '#0f172a' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
+    title: { color: '#f1f5f9', margin: 0 },
+    addBtn: { textDecoration: 'none', padding: '10px 20px', background: '#2563eb', color: 'white', borderRadius: '8px', fontWeight: 'bold' },
+    tableContainer: { background: '#1e293b', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.5)', border: '1px solid #334155', overflow: 'hidden' },
+    table: { width: '100%', borderCollapse: 'collapse' },
+    thead: { background: '#0f172a' },
+    th: { textAlign: 'left', padding: '15px', color: '#94a3b8', borderBottom: '1px solid #334155', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' },
+    tr: { borderBottom: '1px solid #334155' },
+    td: { padding: '15px', color: '#f1f5f9' },
+    email: { padding: '15px', color: '#94a3b8' },
+    badge: (role) => ({
+      background: role === 'admin' ? '#78350f' : '#1e3a8a', 
+      color: role === 'admin' ? '#fcd34d' : '#93c5fd', 
+      padding: '4px 10px', 
+      borderRadius: '6px', 
+      fontSize: '0.8rem',
+      fontWeight: 'bold',
+      textTransform: 'capitalize'
+    }),
+    editBtn: { marginRight: '15px', color: '#60a5fa', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' },
+    removeBtn: { background: '#b91c1c', color: 'white', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem' }
+  };
+
+  if (loading) return <div style={{padding: '2rem', color: '#94a3b8'}}>Loading staff...</div>;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ color: '#1e293b' }}>Staff Management</h2>
-        <Link to="/admin/staff/new" className="btn-primary" style={{ textDecoration: 'none', padding: '10px 20px', background: '#2563eb', color: 'white', borderRadius: '6px' }}>
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h2 style={styles.title}>Staff Management</h2>
+        <Link to="/admin/staff/new" style={styles.addBtn}>
           + New Staff
         </Link>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead style={{ background: '#f8fafc' }}>
+      <div style={styles.tableContainer}>
+        <table style={styles.table}>
+          <thead style={styles.thead}>
             <tr>
-              <th style={{ textAlign: 'left', padding: '15px', color: '#64748b' }}>Name</th>
-              <th style={{ textAlign: 'left', padding: '15px', color: '#64748b' }}>Email</th>
-              <th style={{ textAlign: 'left', padding: '15px', color: '#64748b' }}>Role</th>
-              <th style={{ textAlign: 'right', padding: '15px', color: '#64748b' }}>Actions</th>
+              <th style={styles.th}>Name</th>
+              <th style={styles.th}>Email</th>
+              <th style={styles.th}>Role</th>
+              <th style={{ ...styles.th, textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {staff.map((person) => (
-              <tr key={person._id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={{ padding: '15px', fontWeight: '500' }}>{person.name}</td>
-                <td style={{ padding: '15px', color: '#666' }}>{person.email}</td>
-                <td style={{ padding: '15px' }}>
-                  <span style={{ 
-                    background: person.role === 'admin' ? '#fef3c7' : '#e0f2fe', 
-                    color: person.role === 'admin' ? '#92400e' : '#0369a1', 
-                    padding: '4px 8px', 
-                    borderRadius: '4px', 
-                    fontSize: '0.9em',
-                    textTransform: 'capitalize'
-                  }}>
+              <tr key={person._id} style={styles.tr}>
+                <td style={styles.td}>{person.name}</td>
+                <td style={styles.email}>{person.email}</td>
+                <td style={styles.td}>
+                  <span style={styles.badge(person.role)}>
                     {person.role === 'mechanic' ? 'Mechanic' : person.role}
                   </span>
                 </td>
                 <td style={{ padding: '15px', textAlign: 'right' }}>
-                  <Link 
-                    to={`/admin/staff/edit/${person._id}`} 
-                    style={{ 
-                      marginRight: '10px', 
-                      color: '#2563eb', 
-                      textDecoration: 'none', 
-                      fontWeight: 'bold',
-                      fontSize: '0.9rem' 
-                    }}
-                  >
+                  <Link to={`/admin/staff/edit/${person._id}`} style={styles.editBtn}>
                     Edit
                   </Link>
-                  
-                  <button 
-                    onClick={() => handleDelete(person._id)}
-                    style={{ 
-                      background: '#ef4444', 
-                      color: 'white', 
-                      border: 'none', 
-                      padding: '6px 12px', 
-                      borderRadius: '4px',
-                      cursor: 'pointer', 
-                      fontWeight: 'bold',
-                      fontSize: '0.85rem'
-                    }}
-                  >
+                  <button onClick={() => handleDelete(person._id)} style={styles.removeBtn}>
                     Remove
                   </button>
                 </td>
@@ -107,7 +100,11 @@ const StaffList = () => {
             ))}
           </tbody>
         </table>
-        {staff.length === 0 && <p style={{ padding: '20px', textAlign: 'center', color: '#999' }}>No staff found.</p>}
+        {staff.length === 0 && (
+          <p style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', margin: 0 }}>
+            No staff found.
+          </p>
+        )}
       </div>
     </div>
   );

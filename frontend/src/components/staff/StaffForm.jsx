@@ -11,7 +11,7 @@ const StaffForm = () => {
     name: '',
     email: '',
     password: '',
-    role: 'mechanic', // Default role
+    role: 'mechanic',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,15 +21,14 @@ const StaffForm = () => {
       const fetchStaff = async () => {
         try {
           const res = await api.get(`/staff/${id}`);
-          // Pre-fill form (exclude password)
           setFormData({
             name: res.data.name,
             email: res.data.email,
             role: res.data.role,
-            password: '' // Keep empty unless changing
+            password: ''
           });
         } catch (err) {
-          console.error("Error fetching staff details:", err);
+          console.error(err);
           setError("Could not load staff details.");
         }
       };
@@ -48,13 +47,11 @@ const StaffForm = () => {
 
     try {
       if (isEditMode) {
-        // Update existing
         await api.put(`/staff/${id}`, formData);
       } else {
-        // Create new
         await api.post('/staff', formData);
       }
-      navigate('/admin/staff'); // Redirect back to list
+      navigate('/admin/staff');
     } catch (err) {
       setError(err.response?.data?.msg || "Error saving staff member.");
     } finally {
@@ -62,18 +59,70 @@ const StaffForm = () => {
     }
   };
 
-  // --- INTERNAL STYLES ---
   const styles = {
-    container: { maxWidth: '600px', margin: '2rem auto', padding: '2rem', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' },
-    header: { marginBottom: '1.5rem', color: '#1e293b' },
+    container: { 
+      maxWidth: '600px', 
+      margin: '2rem auto', 
+      padding: '2.5rem', 
+      background: '#1e293b', 
+      borderRadius: '12px', 
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
+      border: '1px solid #334155'
+    },
+    header: { marginBottom: '1.5rem', color: '#f1f5f9', fontWeight: '700' },
     formGroup: { marginBottom: '1.2rem' },
-    label: { display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#475569' },
-    input: { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem' },
-    select: { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem', background: 'white' },
-    errorBox: { padding: '10px', background: '#fee2e2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' },
-    actions: { display: 'flex', gap: '10px', marginTop: '2rem' },
-    cancelBtn: { flex: 1, padding: '10px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' },
-    submitBtn: { flex: 1, padding: '10px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }
+    label: { display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#94a3b8' },
+    input: { 
+      width: '100%', 
+      padding: '12px', 
+      borderRadius: '8px', 
+      border: '1px solid #475569', 
+      fontSize: '1rem', 
+      background: '#0f172a', 
+      color: '#f1f5f9',
+      boxSizing: 'border-box'
+    },
+    select: { 
+      width: '100%', 
+      padding: '12px', 
+      borderRadius: '8px', 
+      border: '1px solid #475569', 
+      fontSize: '1rem', 
+      background: '#0f172a', 
+      color: '#f1f5f9',
+      boxSizing: 'border-box'
+    },
+    errorBox: { 
+      padding: '12px', 
+      background: '#7f1d1d', 
+      color: '#fecaca', 
+      borderRadius: '8px', 
+      marginBottom: '1.5rem',
+      border: '1px solid #991b1b'
+    },
+    actions: { display: 'flex', gap: '15px', marginTop: '2.5rem' },
+    cancelBtn: { 
+      flex: 1, 
+      padding: '12px', 
+      background: '#334155', 
+      color: '#f1f5f9', 
+      border: 'none', 
+      borderRadius: '8px', 
+      cursor: 'pointer', 
+      fontWeight: 'bold',
+      transition: 'background 0.2s'
+    },
+    submitBtn: { 
+      flex: 1, 
+      padding: '12px', 
+      background: '#2563eb', 
+      color: 'white', 
+      border: 'none', 
+      borderRadius: '8px', 
+      cursor: 'pointer', 
+      fontWeight: 'bold',
+      transition: 'background 0.2s'
+    }
   };
 
   return (
@@ -132,7 +181,7 @@ const StaffForm = () => {
             name="password" 
             value={formData.password} 
             onChange={handleChange} 
-            required={!isEditMode} // Required only when creating new
+            required={!isEditMode}
             placeholder={isEditMode ? "********" : "Enter secure password"}
             style={styles.input} 
           />
@@ -143,13 +192,21 @@ const StaffForm = () => {
             type="button" 
             onClick={() => navigate('/admin/staff')} 
             style={styles.cancelBtn}
+            onMouseEnter={(e) => e.target.style.background = '#475569'}
+            onMouseLeave={(e) => e.target.style.background = '#334155'}
           >
             Cancel
           </button>
           <button 
             type="submit" 
             disabled={loading} 
-            style={styles.submitBtn}
+            style={{
+              ...styles.submitBtn,
+              background: loading ? '#475569' : '#2563eb',
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+            onMouseEnter={(e) => !loading && (e.target.style.background = '#1d4ed8')}
+            onMouseLeave={(e) => !loading && (e.target.style.background = '#2563eb')}
           >
             {loading ? 'Saving...' : (isEditMode ? 'Update Staff' : 'Register Staff')}
           </button>

@@ -11,7 +11,7 @@ const ServiceForm = () => {
     name: '',
     type: 'Maintenance',
     price: '',
-    duration: 60, // Default 60 min
+    duration: 60,
     descriptionPublic: '',
     descriptionPrivate: '',
     authorizedMechanics: [] 
@@ -26,7 +26,7 @@ const ServiceForm = () => {
         const response = await api.get('/staff/mechanics');
         setMechanics(response.data);
       } catch (err) {
-        console.error('Error fetching mechanics:', err);
+        console.error(err);
       }
     };
     fetchMechanics();
@@ -47,7 +47,7 @@ const ServiceForm = () => {
             authorizedMechanics: res.data.authorizedMechanics?.map(m => m._id) || []
           });
         } catch (err) {
-          console.error("Error loading service:", err);
+          console.error(err);
         }
       };
       fetchService();
@@ -86,19 +86,73 @@ const ServiceForm = () => {
   };
 
   const styles = {
-    container: { maxWidth: '800px', margin: '2rem auto', padding: '2rem', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' },
+    container: { 
+      maxWidth: '800px', 
+      margin: '2rem auto', 
+      padding: '2.5rem', 
+      background: '#1e293b', 
+      borderRadius: '12px', 
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
+      border: '1px solid #334155'
+    },
     formGroup: { marginBottom: '1.2rem' },
-    label: { display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#1e293b' },
-    input: { width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '1rem' },
+    label: { display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#94a3b8' },
+    input: { 
+      width: '100%', 
+      padding: '12px', 
+      borderRadius: '8px', 
+      border: '1px solid #475569', 
+      fontSize: '1rem', 
+      background: '#0f172a', 
+      color: '#f1f5f9',
+      boxSizing: 'border-box'
+    },
     row: { display: 'flex', gap: '20px', flexWrap: 'wrap' },
     col: { flex: 1, minWidth: '200px' },
-    checkboxGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px', marginTop: '10px' },
-    actions: { display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '2rem' }
+    checkboxGrid: { 
+      display: 'grid', 
+      gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
+      gap: '12px', 
+      marginTop: '10px',
+      background: '#0f172a',
+      padding: '15px',
+      borderRadius: '8px',
+      border: '1px solid #334155'
+    },
+    checkboxLabel: { 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '8px', 
+      cursor: 'pointer',
+      color: '#cbd5e1',
+      fontSize: '0.9rem'
+    },
+    actions: { display: 'flex', justifyContent: 'flex-end', gap: '15px', marginTop: '2.5rem' },
+    cancelBtn: { 
+      background: '#334155', 
+      color: '#f1f5f9', 
+      padding: '12px 24px', 
+      border: 'none', 
+      borderRadius: '8px', 
+      cursor: 'pointer',
+      fontWeight: '600',
+      transition: 'background 0.2s'
+    },
+    submitBtn: { 
+      background: '#2563eb', 
+      color: 'white', 
+      padding: '12px 24px', 
+      border: 'none', 
+      borderRadius: '8px', 
+      cursor: 'pointer', 
+      fontWeight: 'bold',
+      transition: 'background 0.2s'
+    }
   };
 
   return (
     <div className="fade-in" style={styles.container}>
-      <h2 style={{ marginBottom: '1.5rem', color: '#1e293b' }}>{isEditMode ? 'Edit Service' : 'Add New Service'}</h2>
+      <h2 style={{ marginBottom: '1.5rem', color: '#f1f5f9', fontWeight: '700' }}>{isEditMode ? 'Edit Service' : 'Add New Service'}</h2>
       
       <form onSubmit={handleSubmit}>
         <div style={styles.formGroup}>
@@ -147,18 +201,41 @@ const ServiceForm = () => {
           <label style={styles.label}>Authorized Mechanics</label>
           <div style={styles.checkboxGrid}>
             {mechanics.map((mech) => (
-              <label key={mech._id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                <input type="checkbox" checked={formData.authorizedMechanics.includes(mech._id)} onChange={() => handleMechanicToggle(mech._id)} />
+              <label key={mech._id} style={styles.checkboxLabel}>
+                <input 
+                  type="checkbox" 
+                  checked={formData.authorizedMechanics.includes(mech._id)} 
+                  onChange={() => handleMechanicToggle(mech._id)}
+                  style={{ cursor: 'pointer', accentColor: '#3b82f6' }}
+                />
                 {mech.name}
               </label>
             ))}
-            {mechanics.length === 0 && <small>No mechanics found.</small>}
+            {mechanics.length === 0 && <small style={{ color: '#64748b' }}>No mechanics found.</small>}
           </div>
         </div>
 
         <div style={styles.actions}>
-          <button type="button" onClick={() => navigate('/admin/services')} style={{ background: '#64748b', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
-          <button type="submit" disabled={loading} style={{ background: '#2563eb', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button 
+            type="button" 
+            onClick={() => navigate('/admin/services')} 
+            style={styles.cancelBtn}
+            onMouseEnter={(e) => e.target.style.background = '#475569'}
+            onMouseLeave={(e) => e.target.style.background = '#334155'}
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            disabled={loading} 
+            style={{
+              ...styles.submitBtn,
+              background: loading ? '#475569' : '#2563eb',
+              cursor: loading ? 'not-allowed' : 'pointer'
+            }}
+            onMouseEnter={(e) => !loading && (e.target.style.background = '#1d4ed8')}
+            onMouseLeave={(e) => !loading && (e.target.style.background = '#2563eb')}
+          >
             {loading ? 'Saving...' : (isEditMode ? 'Update Service' : 'Create Service')}
           </button>
         </div>

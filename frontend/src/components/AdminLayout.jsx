@@ -11,48 +11,49 @@ const AdminLayout = () => {
     navigate('/login');
   };
 
-  // Prevent crash if user is null
   if (!user) return null;
 
-  // Role check
   const isAdmin = user.role === 'admin';
 
-  // --- INTERNAL STYLES ---
+  // --- DARK MODE INTERNAL STYLES ---
   const styles = {
     container: {
       display: 'flex',
       minHeight: '100vh',
-      fontFamily: 'sans-serif'
+      fontFamily: 'Inter, sans-serif',
+      background: '#0f172a' // Darkest Blue
     },
     sidebar: {
       width: '260px',
-      background: '#0f172a', // Dark Navy
-      color: 'white',
+      background: '#1e293b', // Lighter Dark Blue (Card color)
+      color: '#f1f5f9',
       display: 'flex',
       flexDirection: 'column',
-      position: 'fixed', // Keep sidebar fixed
+      position: 'fixed',
       height: '100vh',
       left: 0,
       top: 0,
-      zIndex: 10
+      zIndex: 10,
+      borderRight: '1px solid #334155', // Border for separation
+      boxShadow: '4px 0 15px rgba(0,0,0,0.3)'
     },
     logo: {
-      padding: '20px',
+      padding: '24px',
       fontSize: '1.5rem',
       fontWeight: '900',
-      borderBottom: '1px solid #1e293b',
+      borderBottom: '1px solid #334155',
       letterSpacing: '1px',
-      color: 'white',
+      color: '#f1f5f9',
       textAlign: 'center'
     },
     logoSpan: {
-      color: '#3b82f6' // Blue accent
+      color: '#3b82f6' 
     },
     nav: {
       padding: '20px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '5px',
+      gap: '8px',
       flex: 1
     },
     link: {
@@ -63,70 +64,80 @@ const AdminLayout = () => {
       textDecoration: 'none',
       borderRadius: '8px',
       fontSize: '0.95rem',
-      transition: 'background 0.2s'
+      transition: 'background 0.2s, color 0.2s',
+      fontWeight: '500'
     },
     divider: {
       marginTop: '20px',
       marginBottom: '10px',
       fontSize: '0.75rem',
       textTransform: 'uppercase',
-      color: '#64748b',
+      color: '#94a3b8',
       fontWeight: 'bold',
-      paddingLeft: '15px'
+      paddingLeft: '15px',
+      letterSpacing: '0.5px'
     },
     userProfile: {
       padding: '20px',
-      borderTop: '1px solid #1e293b',
+      borderTop: '1px solid #334155',
       background: '#1e293b'
     },
     userInfo: {
-      marginBottom: '10px'
+      marginBottom: '15px'
     },
     userName: {
-      fontWeight: 'bold',
-      fontSize: '0.9rem',
-      margin: 0
+      fontWeight: '600',
+      fontSize: '0.95rem',
+      margin: 0,
+      color: '#f1f5f9'
     },
     userRole: {
-      fontSize: '0.8rem',
+      fontSize: '0.75rem',
       color: '#94a3b8',
-      textTransform: 'capitalize'
+      textTransform: 'uppercase',
+      marginTop: '4px',
+      display: 'inline-block',
+      background: '#0f172a',
+      padding: '2px 8px',
+      borderRadius: '4px'
     },
     logoutBtn: {
       width: '100%',
-      padding: '8px',
-      background: '#ef4444',
+      padding: '10px',
+      background: '#b91c1c', // Darker Red
       color: 'white',
       border: 'none',
-      borderRadius: '6px',
+      borderRadius: '8px',
       cursor: 'pointer',
-      fontSize: '0.85rem',
-      fontWeight: 'bold'
+      fontSize: '0.9rem',
+      fontWeight: '600',
+      transition: 'background 0.2s'
     },
     main: {
-      marginLeft: '260px', // Offset for fixed sidebar
+      marginLeft: '260px', 
       flex: 1,
-      background: '#f1f5f9',
+      background: '#0f172a', // Match body background
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column'
     },
     header: {
-      background: 'white',
+      background: '#1e293b',
       padding: '20px 40px',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      borderBottom: '1px solid #e2e8f0',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+      borderBottom: '1px solid #334155',
+      boxShadow: '0 4px 6px -1px rgba(0,0,0,0.2)'
     },
     headerTitle: {
-      fontSize: '1.25rem',
-      color: '#1e293b',
-      margin: 0
+      fontSize: '1.5rem',
+      color: '#f1f5f9',
+      margin: 0,
+      fontWeight: '700'
     },
     date: {
-      color: '#64748b',
+      color: '#94a3b8',
       fontSize: '0.9rem',
       fontWeight: '500'
     },
@@ -134,63 +145,84 @@ const AdminLayout = () => {
       padding: '40px',
       maxWidth: '1200px',
       width: '100%',
-      margin: '0 auto'
+      margin: '0 auto',
+      color: '#f1f5f9'
     }
   };
 
   return (
     <div style={styles.container}>
-      {/* --- SIDEBAR --- */}
       <aside style={styles.sidebar}>
         <div style={styles.logo}>
           REPRO<span style={styles.logoSpan}>AUTO</span>
         </div>
         
         <nav style={styles.nav}>
-          {/* Links Visible to ALL (Admin + Staff) */}
-          <Link to="/admin/dashboard" style={styles.link}>
-            <span style={{marginRight: '10px'}}>📊</span> Dashboard
+          <Link 
+            to="/admin/dashboard" 
+            style={styles.link}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#334155'; e.currentTarget.style.color = '#60a5fa'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#cbd5e1'; }}
+          >
+            <span style={{marginRight: '12px'}}>📊</span> Dashboard
           </Link>
           
-          <Link to="/admin/services" style={styles.link}>
-            <span style={{marginRight: '10px'}}>🔧</span> Services
+          <Link 
+            to="/admin/services" 
+            style={styles.link}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#334155'; e.currentTarget.style.color = '#60a5fa'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#cbd5e1'; }}
+          >
+            <span style={{marginRight: '12px'}}>🔧</span> Services
           </Link>
           
-          {/* Links Visible ONLY to ADMIN */}
           {isAdmin && (
             <>
               <div style={styles.divider}>Admin</div>
-              <Link to="/admin/staff" style={styles.link}>
-                <span style={{marginRight: '10px'}}>👥</span> Manage Staff
+              <Link 
+                to="/admin/staff" 
+                style={styles.link}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#334155'; e.currentTarget.style.color = '#60a5fa'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#cbd5e1'; }}
+              >
+                <span style={{marginRight: '12px'}}>👥</span> Manage Staff
               </Link>
-              <Link to="/admin/settings" style={styles.link}>
-                <span style={{marginRight: '10px'}}>⚙️</span> Settings
+              <Link 
+                to="/admin/settings" 
+                style={styles.link}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#334155'; e.currentTarget.style.color = '#60a5fa'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#cbd5e1'; }}
+              >
+                <span style={{marginRight: '12px'}}>⚙️</span> Settings
               </Link>
             </>
           )}
         </nav>
 
-        {/* User Profile at Bottom */}
         <div style={styles.userProfile}>
           <div style={styles.userInfo}>
             <p style={styles.userName}>{user.name || "User"}</p>
             <span style={styles.userRole}>{user.role}</span>
           </div>
 
-          <button onClick={handleLogout} style={styles.logoutBtn}>
+          <button 
+            onClick={handleLogout} 
+            style={styles.logoutBtn}
+            onMouseEnter={(e) => e.target.style.background = '#ef4444'}
+            onMouseLeave={(e) => e.target.style.background = '#b91c1c'}
+          >
             Logout
           </button>
         </div>
       </aside>
 
-      {/* --- MAIN CONTENT --- */}
       <main style={styles.main}>
         <header style={styles.header}>
           <h1 style={styles.headerTitle}>
             {isAdmin ? 'Admin Dashboard' : 'Staff Area'}
           </h1>
           <div style={styles.date}>
-            {new Date().toLocaleDateString('en-GB')} {/* Changed to English Date Format */}
+            {new Date().toLocaleDateString('en-GB')}
           </div>
         </header>
         

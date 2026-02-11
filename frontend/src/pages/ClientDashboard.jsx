@@ -13,10 +13,9 @@ const ClientDashboard = () => {
 
         const res = await api.get('/bookings/my-history');
         
-        // Ensure res.data is an array
         setBookings(Array.isArray(res.data) ? res.data : []);
       } catch (error) {
-        console.error("Error loading history:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -26,15 +25,15 @@ const ClientDashboard = () => {
   }, []);
 
   const getStatusBadge = (status) => {
-    // Matches your English Backend Enums
     const styles = {
-      'Completed': { bg: '#d1fae5', text: '#065f46' },
-      'In Progress': { bg: '#dbeafe', text: '#1e40af' },
-      'Pending': { bg: '#fef3c7', text: '#92400e' },
-      'Confirmed': { bg: '#dcfce7', text: '#15803d' },
-      'Cancelled': { bg: '#fee2e2', text: '#b91c1c' }
+      'Completed': { bg: '#064e3b', text: '#6ee7b7' },
+      'In Progress': { bg: '#1e3a8a', text: '#93c5fd' },
+      'Pending': { bg: '#78350f', text: '#fcd34d' },
+      'Confirmed': { bg: '#14532d', text: '#86efac' },
+      'Cancelled': { bg: '#7f1d1d', text: '#fca5a5' }
     };
-    const current = styles[status] || { bg: '#f1f5f9', text: '#475569' };
+    const current = styles[status] || { bg: '#334155', text: '#cbd5e1' };
+    
     return (
       <span style={{ 
         padding: '6px 12px', 
@@ -42,40 +41,40 @@ const ClientDashboard = () => {
         fontSize: '12px', 
         fontWeight: 'bold', 
         background: current.bg, 
-        color: current.text 
+        color: current.text,
+        border: `1px solid ${current.bg}`
       }}>
         {status}
       </span>
     );
   };
 
-  if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading history...</div>;
+  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Loading history...</div>;
 
   return (
     <div className="fade-in" style={{ padding: '40px', maxWidth: '1000px', margin: 'auto' }}>
-      <h2 style={{ marginBottom: '30px' }}>My Interventions</h2>
-      <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', overflow: 'hidden' }}>
+      <h2 style={{ marginBottom: '30px', color: '#ffffff', borderBottom: '1px solid #334155', paddingBottom: '15px' }}>My Interventions</h2>
+      <div style={{ background: '#1e293b', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)', border: '1px solid #334155', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead style={{ background: '#f8fafc' }}>
+          <thead style={{ background: '#0f172a' }}>
             <tr>
-              <th style={{ padding: '15px', textAlign: 'left' }}>Date</th>
-              <th style={{ padding: '15px', textAlign: 'left' }}>Service</th>
-              <th style={{ padding: '15px', textAlign: 'left' }}>Status</th>
+              <th style={{ padding: '15px', textAlign: 'left', color: '#cbd5e1', borderBottom: '1px solid #334155' }}>Date</th>
+              <th style={{ padding: '15px', textAlign: 'left', color: '#cbd5e1', borderBottom: '1px solid #334155' }}>Service</th>
+              <th style={{ padding: '15px', textAlign: 'left', color: '#cbd5e1', borderBottom: '1px solid #334155' }}>Status</th>
             </tr>
           </thead>
           <tbody>
             {bookings.length > 0 ? (
               bookings.map(b => (
-                <tr key={b._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '15px' }}>
-                    {/* Format the date to English (GB for DD/MM/YYYY) */}
+                <tr key={b._id} style={{ borderBottom: '1px solid #334155' }}>
+                  <td style={{ padding: '15px', color: '#f1f5f9' }}>
                     {new Date(b.date).toLocaleDateString('en-GB')} at {b.time}
                   </td>
                   <td style={{ padding: '15px' }}>
-                    <strong style={{ display: 'block', color: '#1e293b' }}>
+                    <strong style={{ display: 'block', color: '#f1f5f9' }}>
                         {b.service?.name || 'Service undefined'}
                     </strong>
-                    <small style={{ color: '#64748b' }}>
+                    <small style={{ color: '#94a3b8' }}>
                         {b.vehicle ? `${b.vehicle.brand} ${b.vehicle.model} (${b.vehicle.plate})` : 'Vehicle undefined'}
                     </small>
                   </td>
@@ -84,7 +83,7 @@ const ClientDashboard = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="3" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>
+                <td colSpan="3" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>
                   No bookings found.
                 </td>
               </tr>
